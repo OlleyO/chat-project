@@ -131,7 +131,7 @@ function submit (formRef) {
         loading.value = true
 
         if (profileModel.avatar_file) {
-          const pathToImage = currentUser.value?.user_metadata.avatar_url.split('images/')[1]
+          const pathToImage = currentUser.value?.user_metadata.avatar_url?.split('images/')[1]
 
           const [{ path }] = await Promise.all([settingsService.uploadAvatar(profileModel.avatar_file),
             settingsService.deleteAvatar(pathToImage)])
