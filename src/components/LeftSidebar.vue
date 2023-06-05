@@ -52,8 +52,6 @@ const { findChat } = chatStore
 const userInput = ref('')
 const filteredChats = ref<TChatData>([])
 
-// const searchQuery = computed(() => userInput.value.split(/\s+/g).join('|')
-// )
 const chatsToShow = computed(() => filteredChats.value.length ? filteredChats.value : chats.value)
 
 watch(userInput, () => {
