@@ -1,10 +1,13 @@
-import type { IDatabase } from '@/types/supabase'
 import { chatService } from './chat.service'
 
 export const useChatStore = defineStore('chatStore', () => {
-  const chats = ref<IDatabase['public']['Views']['chat_view']['Row'][]>([])
+  const maxMessagesPerRequest = 20
+
+  const chats = ref<TChatData>([])
   const messages = ref<IMessage[]>([])
-  const maxMessagesPerRequest = 500
+  const currentChat = ref<TChatItem>()
+
+  const chatsLoading = ref(false)
 
   const lastReadMessage = computed(() => {
     const lastReadIndex = messages.value.findIndex(
@@ -17,7 +20,10 @@ export const useChatStore = defineStore('chatStore', () => {
   const { currentUser } = storeToRefs(authStore)
 
   async function loadMessageBatch (chatId: string) {
-    messages.value = (await chatService.getMessages(0, maxMessagesPerRequest - 1, chatId)) as unknown as IMessage[]
+    const messageBatch = await chatService.getMessages(messages.value.length,
+      messages.value.length + maxMessagesPerRequest, chatId) as unknown as IMessage[]
+
+    messages.value = [...messageBatch.reverse(), ...messages.value]
   }
 
   async function getChats () {
@@ -30,11 +36,22 @@ export const useChatStore = defineStore('chatStore', () => {
     }
   }
 
+  async function findChat (searchQuery: string) {
+    if (currentUser.value) {
+      const wantedChats = await chatService.findChats(searchQuery, currentUser.value.id)
+
+      return wantedChats as TChatData
+    }
+  }
+
   return {
     chats,
     messages,
+    currentChat,
+    chatsLoading,
     lastReadMessage,
     loadMessageBatch,
-    getChats
+    getChats,
+    findChat
   }
 })

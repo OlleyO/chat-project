@@ -38,7 +38,10 @@
       <el-input v-model="sendMessageModel.message" class="message-input" placeholder="Write a message" />
     </el-form-item>
 
-    <div class="flex justify-end md:flex-1 md:p-3 bg-block-secondary md:rounded-xl gap-1">
+    <div
+      class="flex justify-end bg-block-secondary gap-1
+      md:p-3 md:flex-1 md:flex-row-reverse md:justify-between md:rounded-xl"
+    >
       <el-button
         :type="$elComponentType.primary"
         :disabled="!isValid"

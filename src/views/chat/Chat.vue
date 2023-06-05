@@ -1,10 +1,13 @@
 <template>
   <div
+    v-loading="messagesLoading"
     class="flex flex-col justify-items-center items-center pt-2 pb-2 md:pb-5 overflow-hidden h-full"
   >
     <div
+      ref="messagesList"
       class="overflow-y-auto no-scrollbar flex-1 w-full px-5 md:px-20 pb-5 flex flex-col gap-6"
     >
+      <div v-loading="messagesBatchLoading" />
       <Message
         v-for="message in messages"
         :key="message.id" :message="message"
@@ -25,8 +28,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { IDatabase } from '@/types/supabase'
-
 import { routeNames } from '@/router/route-names'
 
 import Message from './components/Message.vue'
@@ -37,25 +38,52 @@ const route = useRoute()
 const authStore = useAuthStore()
 const chatStore = useChatStore()
 
+const messagesLoading = ref(false)
+const messagesBatchLoading = ref(false)
+
 const { currentUser } = storeToRefs(authStore)
-const { messages, lastReadMessage, chats } = storeToRefs(chatStore)
+const { messages, lastReadMessage, chats, currentChat, chatsLoading } = storeToRefs(chatStore)
 
 const { loadMessageBatch, getChats } = chatStore
 
 const router = useRouter()
 
-watch(currentUser, async () => {
-  const fetchedChats = await getChats()
+const messagesList = ref<HTMLDivElement | null>(null)
 
-  if (fetchedChats?.length) {
-    router.replace({
-      name: routeNames.chatRoom,
-      params: {
-        id: fetchedChats[0].chat_id
-      }
-    })
+useInfiniteScroll(messagesList, async () => {
+  const chatId = route.params.id as string
+  if (chatId && !messagesLoading.value) {
+    messagesBatchLoading.value = true
+    await loadMessageBatch(chatId)
+    messagesBatchLoading.value = false
   }
-})
+}, { distance: 10, direction: 'top', preserveScrollPosition: true })
+
+async function loadChatsAndRedirectToLastActive () {
+  try {
+    chatsLoading.value = true
+    const fetchedChats = await getChats()
+
+    if (fetchedChats?.length) {
+      currentChat.value = fetchedChats[0]
+
+      router.replace({
+        name: routeNames.chatRoom,
+        params: {
+          id: fetchedChats[0].chat_id
+        }
+      })
+    }
+  } catch (err) {
+    console.log(err)
+  } finally {
+    chatsLoading.value = false
+  }
+}
+
+watch(currentUser, async () => {
+  loadChatsAndRedirectToLastActive()
+}, { immediate: true })
 
 function markAsRead (message: IDatabase['public']['Tables']['messages']['Row']) {
   const chatIndex = chats.value.findIndex(chat => chat.chat_id === message.chat_id)
@@ -94,18 +122,39 @@ function addMessage (newMessage: IMessage, chatId: string) {
   }
 }
 
+async function initialLoadMessages (chatId: string) {
+  messages.value = []
+
+  try {
+    messagesLoading.value = true
+    await loadMessageBatch(chatId)
+  } catch (err) {
+    console.log(err)
+  } finally {
+    messagesLoading.value = false
+  }
+}
+
+function subscribeToChatMessagesEvents (chatId: string) {
+  chatService.onNewMessage((newMessage) => {
+    addMessage(newMessage, chatId)
+  })
+
+  chatService.onUpdateMessage((updatedMessage) => {
+    markAsRead(updatedMessage)
+  })
+}
+
 watch(route, async (route) => {
   const chatId = route.params.id as string
+  messages.value = []
+
   if (chatId) {
-    await loadMessageBatch(chatId)
+    currentChat.value = chats.value.find((ch) => ch.chat_id === chatId)
 
-    chatService.onNewMessage((newMessage) => {
-      addMessage(newMessage, chatId)
-    })
+    initialLoadMessages(chatId)
 
-    chatService.onUpdateMessage((updatedMessage) => {
-      markAsRead(updatedMessage)
-    })
+    subscribeToChatMessagesEvents(chatId)
   }
 }, { immediate: true })
 </script>

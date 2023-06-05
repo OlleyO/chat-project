@@ -7,7 +7,7 @@
     <AppAvatar
       class="self-end"
       :size="40"
-      :src="message.users.avatar_url ?? ''"
+      :src="message.users.avatar_url"
       :fullname="message.users.fullname"
       :online="false"
     />

@@ -10,11 +10,15 @@
     @open="$emit('update:modelValue', true)"
     @close="$emit('update:modelValue', false)"
   >
-    <template #header="{ close, titleId }">
+    <template #header="{ close }">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <el-avatar :id="titleId" :size="24" src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png" fill="cover" />
-          <span class="text-base font-semibold text-primary">Caesar</span>
+          <AppAvatar
+            :size="24"
+            :src="currentChat?.avatar_url"
+            :fullname="currentChat?.fullname"
+          />
+          <span class="text-base font-semibold text-primary">{{ currentChat?.fullname }}</span>
         </div>
 
         <el-button text circle @click="close">
@@ -31,12 +35,12 @@
       <div class="flex flex-col gap-2">
         <span class="font-semibold text-sm">Username</span>
 
-        <span class="text-sm">@Caesar</span>
+        <span class="text-sm">{{ currentChat?.tagname }}</span>
       </div>
 
       <div class="flex flex-col gap-2">
         <span class="font-semibold text-sm">Bio</span>
-        <span class="text-sm">I like talk shows</span>
+        <span class="text-sm">{{ currentChat?.bio }}</span>
       </div>
     </div>
 
@@ -63,6 +67,9 @@
 <script lang="ts" setup>
 import CloseCross from '@/components/icons/CloseCross.vue'
 
-defineProps(['modelValue'])
+defineProps<{
+  modelValue: boolean
+  currentChat?: TChatItem
+}>()
 defineEmits(['update:modelValue'])
 </script>

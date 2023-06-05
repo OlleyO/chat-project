@@ -6,11 +6,10 @@
     <el-button class="md:hidden text-2xl leading-none" text :icon="BurgerMenu" @click="emit('onMenuClick')" />
 
     <div class="flex gap-20 items-center">
-      <AppLogo />
-
+      <AppLogo class="hidden md:flex items-center" />
       <p class="font-semibold text-sm text-primary">
-        Caeser
-        <span class="font-normal text-secondary">last seen 5 min ago</span>
+        {{ currentChat?.fullname }}
+        <!-- <span class="font-normal text-secondary">{{ lastSeen }}</span> -->
       </p>
     </div>
 
@@ -34,8 +33,11 @@
         <template #dropdown>
           <el-dropdown-menu class="bg-block-primary rounded-3xl" placement="bottom-start">
             <el-dropdown-item>
-              <el-button text>Settings</el-button>
+              <el-button text @click="$router.push({name: $routeNames.settings})">
+                Settings
+              </el-button>
             </el-dropdown-item>
+
             <el-dropdown-item>
               <LogOutButton />
             </el-dropdown-item>
@@ -44,17 +46,28 @@
       </el-dropdown>
 
       <div class="hidden px-2 h-full md:flex items-center">
-        <el-avatar :size="32" src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png" fill="cover" />
+        <AppAvatar
+          :size="32"
+          :src="currentUser?.user_metadata.avatar_url"
+          :fullname="currentUser?.user_metadata.fullname"
+        />
       </div>
     </div>
   </header>
 </template>
 
 <script lang="ts" setup>
+import type { User } from '@supabase/supabase-js'
+
 import BurgerMenu from '@/components/icons/BurgerMenu.vue'
 import AppLogo from '@/components/AppLogo.vue'
 import Dots from '@/components/icons/Dots.vue'
 import Gear from '@/components/icons/Gear.vue'
+
+defineProps<{
+  currentChat?: TChatItem
+  currentUser: User | null
+}>()
 
 const emit = defineEmits(['onMenuClick', 'onInfoClick'])
 </script>

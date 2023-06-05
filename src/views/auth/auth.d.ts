@@ -19,4 +19,8 @@ interface IUserData {
   avatarUrl: string
 }
 
-type TAuthWithEmailAndPasswordPayload = IAuthWithEmailAndPasswordPayload & Omit<IUserData, 'bio' | 'avatarUrl'>
+interface IOnlineUsers {
+  [key: string]: boolean
+}
+
+type TAuthWithEmailAndPasswordPayload = IAuthWithEmailAndPasswordPayload & Omit<IUserData, 'bio' | 'avatarUrl' | 'tagname'>

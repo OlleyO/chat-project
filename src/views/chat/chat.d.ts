@@ -3,3 +3,7 @@ type TGetMessagesDataType = TArrayElement<Awaited<ReturnType<typeof chatService.
 interface IMessage extends TGetMessagesDataType {
   users: TArrayElement<TGetMessagesDataType['users']>
 }
+
+type TChatData = IDatabase['public']['Functions']['get_chats']['Returns']
+
+type TChatItem = TArrayElement<TChatData>

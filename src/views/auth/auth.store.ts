@@ -2,7 +2,7 @@ import { RealtimeChannel, type User } from '@supabase/supabase-js'
 
 export const useAuthStore = defineStore('authStore', () => {
   const currentUser = ref<User | null>(null)
-  const onlineUsers = ref<{[key: string]: boolean}>({})
+  const onlineUsers = ref<IOnlineUsers>({})
 
   const isAuthenticated = computed(() => !!currentUser)
 
@@ -47,6 +47,9 @@ export const useAuthStore = defineStore('authStore', () => {
       }
 
       switch (event) {
+        case 'USER_UPDATED':
+          loadUser()
+          break
         case 'INITIAL_SESSION':
         case 'SIGNED_IN':
           currentUser.value = session?.user || null

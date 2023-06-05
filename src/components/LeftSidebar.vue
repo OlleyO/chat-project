@@ -11,12 +11,17 @@
       </el-icon>
     </el-button>
 
-    <el-input class="search-input w-full h-8 text-sm mb-2 px-6" placeholder="Search" :prefix-icon="MagnifyingGlass" />
+    <el-input
+      v-model="userInput"
+      class="search-input w-full h-8 text-sm mb-3 px-6"
+      placeholder="Search"
+      :prefix-icon="MagnifyingGlass"
+    />
 
     <!-- TODO: Add v-infinite-scroll directive -->
-    <div class="overflow-y-auto h-full pb-2 md:pb-6 no-scrollbar">
+    <div v-loading="chatsLoading" class="overflow-y-auto h-full pb-2 md:pb-6 no-scrollbar">
       <ContactItem
-        v-for="chat in chats"
+        v-for="chat in chatsToShow"
         :key="chat.chat_id!"
         :open="chat.chat_id === $route.params.id"
         :chat="chat"
@@ -33,16 +38,35 @@ import { useChatStore } from '@/views/chat/chat.store'
 
 defineProps<{
   open?: boolean
+  onlineUsers: IOnlineUsers
 }>()
 
 const emit = defineEmits(['onClose'])
 
 const chatStore = useChatStore()
-const authStore = useAuthStore()
 
-const { onlineUsers } = storeToRefs(authStore)
-const { chats } = storeToRefs(chatStore)
+const { chats, chatsLoading } = storeToRefs(chatStore)
+const { findChat } = chatStore
 
+const userInput = ref('')
+const filteredChats = ref<TChatData>([])
+
+const chatsToShow = computed(() => filteredChats.value.length ? filteredChats.value : chats.value)
+
+watch(userInput, () => {
+  debouncedFindChat()
+})
+
+const debouncedFindChat = useDebounceFn(async () => {
+  try {
+    chatsLoading.value = true
+    filteredChats.value = await findChat(userInput.value) ?? []
+  } catch (err) {
+    console.log(err)
+  } finally {
+    chatsLoading.value = false
+  }
+}, 300)
 </script>
 
 <style lang="scss">

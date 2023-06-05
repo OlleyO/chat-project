@@ -12,7 +12,7 @@
       hover:after:bg-opacity-20 after:w-screen after:h-full px-6"
       :class="{['after:bg-block-3 after:bg-opacity-30']:open}"
     >
-      <AppAvatar :size="40" :online="online" :src="chat.avatar_url ?? ''" :fullname="chat.fullname" />
+      <AppAvatar :size="40" :online="online" :src="chat.avatar_url" :fullname="chat.fullname" />
 
       <div class="flex flex-col flex-1 truncate">
         <span class="font-semibold text-sm text-primary truncate">{{ chat.fullname }}</span>
@@ -44,8 +44,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { IDatabase } from '@/types/supabase'
-
 import Badge from '@/components/Badge.vue'
 
 defineProps<{

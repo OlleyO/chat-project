@@ -69,8 +69,7 @@ const registerModel = useElFormModel<TAuthWithEmailAndPasswordPayload>({
   email: '',
   password: '',
   fullname: '',
-  username: '',
-  tagname: ''
+  username: ''
 })
 
 const registerRules = useElFormRules({
@@ -92,8 +91,7 @@ function submit (formRef) {
       try {
         loading.value = true
         await register({
-          ...registerModel,
-          tagname: `@${registerModel.username}`
+          ...registerModel
         })
         router.push({ name: 'chat' })
       } catch (err) {

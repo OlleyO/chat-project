@@ -1,5 +1,3 @@
-import type { IDatabase } from '@/types/supabase'
-
 class ChatService {
   async getUsers () {
     const { data, error } = await useSupabase().from('users').select()
@@ -20,9 +18,7 @@ class ChatService {
       throw error
     }
 
-    const filtered = data.filter(ch => ch.user_id === userId).map(ch => ch.chat_id)
-
-    return data.filter(ch => filtered.some(id => ch.chat_id === id) && ch.user_id !== userId)
+    return data
   }
 
   async getMessages (from: number, to: number, chatId: string) {
@@ -34,7 +30,7 @@ class ChatService {
     read,
     users(id, fullname, username, avatar_url)
     `
-    ).eq('chat_id', chatId).range(from, to).order('created_at')
+    ).eq('chat_id', chatId).order('created_at', { ascending: false }).range(from, to)
 
     if (error) {
       throw error
@@ -78,6 +74,19 @@ class ChatService {
     const { data, error } = await useSupabase().from('messages').update({
       read: true
     }).eq('id', messageId)
+
+    if (error) {
+      throw error
+    }
+
+    return data
+  }
+
+  async findChats (searchQuery: string, userId: string) {
+    const { data, error } = await useSupabase().rpc('username_fullname_tagname', {
+      search_query: searchQuery,
+      user_id: userId
+    })
 
     if (error) {
       throw error
