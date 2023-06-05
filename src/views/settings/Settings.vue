@@ -129,6 +129,7 @@ function submit (formRef) {
     if (valid) {
       try {
         loading.value = true
+        let avatarUrl = ''
 
         if (profileModel.avatar_file) {
           const pathToImage = currentUser.value?.user_metadata.avatar_url?.split('images/')[1]
@@ -136,20 +137,21 @@ function submit (formRef) {
           const [{ path }] = await Promise.all([settingsService.uploadAvatar(profileModel.avatar_file),
             settingsService.deleteAvatar(pathToImage)])
 
-          const avatarUrl = (await settingsService.getAvatarUrl(path)).publicUrl
+          avatarUrl = (await settingsService.getAvatarUrl(path)).publicUrl
 
           URL.revokeObjectURL(profileModel.avatar_url)
 
           profileModel.avatar_url = avatarUrl
 
-          await settingsService.updateProfile({
-            ...profileModel,
-            avatar_url: avatarUrl
-          })
+          // await settingsService.updateProfile({
+          //   ...profileModel,
+          //   avatar_url: avatarUrl
+          // })
         }
 
         await settingsService.updateProfile({
-          ...profileModel
+          ...profileModel,
+          avatar_url: avatarUrl
         })
       } catch (err) {
         console.log(err)
