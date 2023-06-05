@@ -59,7 +59,7 @@ useInfiniteScroll(messagesList, async () => {
   }
 }, { distance: 10, direction: 'top', preserveScrollPosition: true })
 
-watch(currentUser, async () => {
+async function loadChatsAndRedirectToLastActive () {
   try {
     chatsLoading.value = true
     const fetchedChats = await getChats()
@@ -77,6 +77,10 @@ watch(currentUser, async () => {
   } finally {
     chatsLoading.value = false
   }
+}
+
+watch(currentUser, async () => {
+  loadChatsAndRedirectToLastActive()
 }, { immediate: true })
 
 function markAsRead (message: IDatabase['public']['Tables']['messages']['Row']) {
