@@ -10,10 +10,14 @@
     @open="$emit('update:modelValue', true)"
     @close="$emit('update:modelValue', false)"
   >
-    <template #header="{ close, titleId }">
+    <template #header="{ close }">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <el-avatar :id="titleId" :size="24" :src="currentChat?.avatar_url" fill="cover" />
+          <AppAvatar
+            :size="24"
+            :src="currentChat?.avatar_url"
+            :fullname="currentChat?.fullname"
+          />
           <span class="text-base font-semibold text-primary">{{ currentChat?.fullname }}</span>
         </div>
 

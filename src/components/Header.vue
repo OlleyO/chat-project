@@ -46,7 +46,11 @@
       </el-dropdown>
 
       <div class="hidden px-2 h-full md:flex items-center">
-        <el-avatar :size="32" :src="currentUser?.user_metadata.avatar_url" fill="cover" />
+        <AppAvatar
+          :size="32"
+          :src="currentUser?.user_metadata.avatar_url"
+          :fullname="currentUser?.user_metadata.fullname"
+        />
       </div>
     </div>
   </header>

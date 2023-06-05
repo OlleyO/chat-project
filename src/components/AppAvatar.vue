@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div class="relative flex">
     <el-avatar :size="size" :src="src">
       {{ createInitials(fullname) }}
     </el-avatar>
@@ -13,10 +13,10 @@
 
 <script lang="ts" setup>
 defineProps<{
-  src: string
+  src?: string | null
   size: number
   fullname?: string | null
-  online: boolean
+  online?: boolean
 }>()
 
 function createInitials (fullname?: string | null) {
