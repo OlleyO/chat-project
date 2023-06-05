@@ -75,6 +75,9 @@ const props = defineProps<{
   senderId: string
 }>()
 
+const chatStore = useChatStore()
+const { currentChat } = storeToRefs(chatStore)
+
 const messageInputRef = ref(null)
 
 const sendMessageFormRef = useElFormRef()
@@ -94,8 +97,15 @@ async function sendMessage () {
   })
 }
 
+async function createChat () {
+  chatService.createNewChat(currentChat.value?.chat_id,
+    currentChat.value?.user_id,
+    props.senderId)
+}
+
 async function submitMessage (formRef, inputRef) {
   if (isValid.value) {
+    await createChat()
     await sendMessage()
     inputRef.resetField()
   }

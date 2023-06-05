@@ -1,3 +1,5 @@
+import type { User } from '@supabase/supabase-js'
+
 class ChatService {
   async getUsers () {
     const { data, error } = await useSupabase().from('users').select()
@@ -93,6 +95,28 @@ class ChatService {
     }
 
     return data
+  }
+
+  async createNewChat (chatId: string, userId: string, creatorId: string) {
+    const { error: error1 } = await useSupabase().from('chats').insert({
+      id: chatId
+    })
+
+    if (error1) {
+      throw error1
+    }
+
+    const { error: error2 } = await useSupabase().from('chat_to_user').insert([{
+      chat_id: chatId,
+      user_id: userId
+    }, {
+      chat_id: chatId,
+      user_id: creatorId
+    }])
+
+    if (error2) {
+      throw error2
+    }
   }
 }
 
