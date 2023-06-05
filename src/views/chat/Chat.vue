@@ -42,7 +42,7 @@ const messagesLoading = ref(false)
 const messagesBatchLoading = ref(false)
 
 const { currentUser } = storeToRefs(authStore)
-const { messages, lastReadMessage, chats, chatsLoading } = storeToRefs(chatStore)
+const { messages, lastReadMessage, chats, currentChat, chatsLoading } = storeToRefs(chatStore)
 
 const { loadMessageBatch, getChats } = chatStore
 
@@ -65,6 +65,8 @@ async function loadChatsAndRedirectToLastActive () {
     const fetchedChats = await getChats()
 
     if (fetchedChats?.length) {
+      currentChat.value = fetchedChats[0]
+
       router.replace({
         name: routeNames.chatRoom,
         params: {
@@ -148,6 +150,8 @@ watch(route, async (route) => {
   messages.value = []
 
   if (chatId) {
+    currentChat.value = chats.value.find((ch) => ch.chat_id === chatId)
+
     initialLoadMessages(chatId)
 
     subscribeToChatMessagesEvents(chatId)

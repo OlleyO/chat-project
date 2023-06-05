@@ -38,14 +38,13 @@ import { useChatStore } from '@/views/chat/chat.store'
 
 defineProps<{
   open?: boolean
+  onlineUsers: IOnlineUsers
 }>()
 
 const emit = defineEmits(['onClose'])
 
 const chatStore = useChatStore()
-const authStore = useAuthStore()
 
-const { onlineUsers } = storeToRefs(authStore)
 const { chats, chatsLoading } = storeToRefs(chatStore)
 const { findChat } = chatStore
 

@@ -1,9 +1,11 @@
 import { chatService } from './chat.service'
 
 export const useChatStore = defineStore('chatStore', () => {
+  const maxMessagesPerRequest = 20
+
   const chats = ref<TChatData>([])
   const messages = ref<IMessage[]>([])
-  const maxMessagesPerRequest = 20
+  const currentChat = ref<TChatItem>()
 
   const chatsLoading = ref(false)
 
@@ -45,6 +47,7 @@ export const useChatStore = defineStore('chatStore', () => {
   return {
     chats,
     messages,
+    currentChat,
     chatsLoading,
     lastReadMessage,
     loadMessageBatch,
