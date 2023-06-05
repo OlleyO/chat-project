@@ -57,7 +57,7 @@ const filteredChats = ref<TChatData>([])
 const chatsToShow = computed(() => filteredChats.value.length ? filteredChats.value : chats.value)
 
 watch(userInput, () => {
-  runSearch()
+  debouncedFindChat()
 })
 
 const debouncedFindChat = useDebounceFn(async () => {
@@ -70,10 +70,6 @@ const debouncedFindChat = useDebounceFn(async () => {
     chatsLoading.value = false
   }
 }, 300)
-
-function runSearch () {
-  debouncedFindChat()
-}
 </script>
 
 <style lang="scss">
