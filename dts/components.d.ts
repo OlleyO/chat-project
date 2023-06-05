@@ -19,6 +19,7 @@ declare module '@vue/runtime-core' {
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElConfigProvider: typeof import('element-plus/es')['ElConfigProvider']
+    ElDialog: typeof import('element-plus/es')['ElDialog']
     ElDivider: typeof import('element-plus/es')['ElDivider']
     ElDrawer: typeof import('element-plus/es')['ElDrawer']
     ElDropdown: typeof import('element-plus/es')['ElDropdown']
@@ -37,12 +38,12 @@ declare module '@vue/runtime-core' {
     MagnifyingGlass: typeof import('./../src/components/icons/MagnifyingGlass.vue')['default']
     Message: typeof import('./../src/views/chat/components/Message.vue')['default']
     MessageForm: typeof import('./../src/views/chat/components/MessageForm.vue')['default']
+    PWAPromt: typeof import('./../src/components/PWAPromt.vue')['default']
     RightSidebar: typeof import('./../src/components/RightSidebar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
   export interface ComponentCustomProperties {
-    vInfiniteScroll: typeof import('element-plus/es')['ElInfiniteScroll']
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

@@ -1,4 +1,5 @@
 <template>
+  <PWAPromt />
   <!--
     This layout is just an example.
     Please create your own depending on your projects needs
