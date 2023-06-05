@@ -52,18 +52,18 @@ const { findChat } = chatStore
 const userInput = ref('')
 const filteredChats = ref<TChatData>([])
 
-const searchQuery = computed(() => userInput.value.split(/\s+/g).join('|')
-)
+// const searchQuery = computed(() => userInput.value.split(/\s+/g).join('|')
+// )
 const chatsToShow = computed(() => filteredChats.value.length ? filteredChats.value : chats.value)
 
-watch(searchQuery, () => {
+watch(userInput, () => {
   runSearch()
 })
 
 const debouncedFindChat = useDebounceFn(async () => {
   try {
     chatsLoading.value = true
-    filteredChats.value = await findChat(searchQuery.value) ?? []
+    filteredChats.value = await findChat(userInput.value) ?? []
   } catch (err) {
     console.log(err)
   } finally {
