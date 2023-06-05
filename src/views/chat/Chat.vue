@@ -116,27 +116,37 @@ function addMessage (newMessage: IMessage, chatId: string) {
   }
 }
 
+async function initialLoadMessages (chatId: string) {
+  messages.value = []
+
+  try {
+    messagesLoading.value = true
+    await loadMessageBatch(chatId)
+  } catch (err) {
+    console.log(err)
+  } finally {
+    messagesLoading.value = false
+  }
+}
+
+function subscribeToChatMessagesEvents (chatId: string) {
+  chatService.onNewMessage((newMessage) => {
+    addMessage(newMessage, chatId)
+  })
+
+  chatService.onUpdateMessage((updatedMessage) => {
+    markAsRead(updatedMessage)
+  })
+}
+
 watch(route, async (route) => {
   const chatId = route.params.id as string
   messages.value = []
 
   if (chatId) {
-    try {
-      messagesLoading.value = true
-      await loadMessageBatch(chatId)
-    } catch (err) {
-      console.log(err)
-    } finally {
-      messagesLoading.value = false
-    }
+    initialLoadMessages(chatId)
 
-    chatService.onNewMessage((newMessage) => {
-      addMessage(newMessage, chatId)
-    })
-
-    chatService.onUpdateMessage((updatedMessage) => {
-      markAsRead(updatedMessage)
-    })
+    subscribeToChatMessagesEvents(chatId)
   }
 }, { immediate: true })
 </script>
