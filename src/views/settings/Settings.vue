@@ -142,11 +142,6 @@ function submit (formRef) {
           URL.revokeObjectURL(profileModel.avatar_url)
 
           profileModel.avatar_url = avatarUrl
-
-          // await settingsService.updateProfile({
-          //   ...profileModel,
-          //   avatar_url: avatarUrl
-          // })
         }
 
         await settingsService.updateProfile({
