@@ -69,7 +69,7 @@ const debouncedFindChat = useDebounceFn(async () => {
   } finally {
     chatsLoading.value = false
   }
-}, 1000)
+}, 300)
 
 function runSearch () {
   debouncedFindChat()
