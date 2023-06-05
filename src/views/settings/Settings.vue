@@ -140,13 +140,11 @@ function submit (formRef) {
           avatarUrl = (await settingsService.getAvatarUrl(path)).publicUrl
 
           URL.revokeObjectURL(profileModel.avatar_url)
-
-          profileModel.avatar_url = avatarUrl
         }
 
         await settingsService.updateProfile({
           ...profileModel,
-          avatar_url: avatarUrl
+          avatar_url: avatarUrl || profileModel.avatar_url
         })
       } catch (err) {
         console.log(err)
