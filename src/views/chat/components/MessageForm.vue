@@ -98,9 +98,11 @@ async function sendMessage () {
 }
 
 async function createChat () {
-  chatService.createNewChat(currentChat.value?.chat_id,
-    currentChat.value?.user_id,
-    props.senderId)
+  if (currentChat.value) {
+    chatService.createNewChat(currentChat.value?.chat_id,
+      currentChat.value?.user_id,
+      props.senderId)
+  }
 }
 
 async function submitMessage (formRef, inputRef) {
