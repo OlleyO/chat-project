@@ -16,6 +16,7 @@
         :lastRead="message.id === lastReadMessage?.id"
         @onMessageRead="markAsRead"
       />
+      <NoMessage v-if="!messages.length && !messagesLoading" class="self-center my-auto" />
     </div>
 
     <div class="md:min-w-[320px] w-full pt-2 px-5 flex-shrink-0 pb-5">
@@ -32,6 +33,7 @@ import { routeNames } from '@/router/route-names'
 
 import Message from './components/Message.vue'
 import MessageForm from './components/MessageForm.vue'
+import NoMessage from './components/NoMessages.vue'
 
 const route = useRoute()
 

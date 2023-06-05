@@ -37,6 +37,7 @@ declare module '@vue/runtime-core' {
     MagnifyingGlass: typeof import('./../src/components/icons/MagnifyingGlass.vue')['default']
     Message: typeof import('./../src/views/chat/components/Message.vue')['default']
     MessageForm: typeof import('./../src/views/chat/components/MessageForm.vue')['default']
+    NoMessages: typeof import('./../src/views/chat/components/NoMessages.vue')['default']
     RightSidebar: typeof import('./../src/components/RightSidebar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

@@ -83,7 +83,7 @@ class ChatService {
   }
 
   async findChats (searchQuery: string, userId: string) {
-    const { data, error } = await useSupabase().rpc('username_fullname_tagname', {
+    const { data, error } = await useSupabase().rpc('username_fullname_tagname_new', {
       search_query: searchQuery,
       user_id: userId
     })
