@@ -13,7 +13,7 @@
 
     <el-input
       v-model="userInput"
-      class="search-input w-full h-8 text-sm mb-2 px-6"
+      class="search-input w-full h-8 text-sm mb-3 px-6"
       placeholder="Search"
       :prefix-icon="MagnifyingGlass"
     />
