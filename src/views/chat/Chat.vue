@@ -124,6 +124,12 @@ function addMessage (newMessage: IMessage, chatId: string) {
   }
 }
 
+function addChat (newChat: TChatItem, chatId: string, currentUserId: string) {
+  if (newChat.user_id === currentUserId || chatId === newChat.chat_id) {
+    chats.value = [newChat, ...chats.value]
+  }
+}
+
 async function initialLoadMessages (chatId: string) {
   messages.value = []
 
@@ -138,6 +144,11 @@ async function initialLoadMessages (chatId: string) {
 }
 
 function subscribeToChatMessagesEvents (chatId: string) {
+  chatService.onNewChat((newChat) => {
+    console.log(currentUser.value?.id)
+    addChat(newChat, chatId, currentUser.value?.id)
+  }, currentUser.value?.id)
+
   chatService.onNewMessage((newMessage) => {
     addMessage(newMessage, chatId)
   })
@@ -149,11 +160,10 @@ function subscribeToChatMessagesEvents (chatId: string) {
 
 watch(route, async (route) => {
   const chatId = route.params.id as string
+
   messages.value = []
 
   if (chatId) {
-    currentChat.value = chats.value.find((ch) => ch.chat_id === chatId)
-
     initialLoadMessages(chatId)
 
     subscribeToChatMessagesEvents(chatId)

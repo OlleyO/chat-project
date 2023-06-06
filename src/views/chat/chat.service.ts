@@ -9,10 +9,16 @@ class ChatService {
     return data
   }
 
-  async getChatsViews (userId: string) {
-    const { data, error } = await useSupabase().rpc('get_chats', {
+  async getChatsViews (userId: string, chatId?: string) {
+    let query = useSupabase().rpc('get_chats', {
       current_user_id: userId
     })
+
+    if (chatId) {
+      query = query.eq('chat_id', chatId)
+    }
+
+    const { data, error } = await query
 
     if (error) {
       throw error
@@ -115,6 +121,14 @@ class ChatService {
     if (error2) {
       throw error2
     }
+  }
+
+  onNewChat (handler: (...args: any[]) => void, currentUserId: string) {
+    useSupabase().channel(supabaseChannels.dbChats).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chats' }, async (payload) => {
+      const chats = await this.getChatsViews(currentUserId, payload.new.chat_id)
+
+      handler(chats[0])
+    }).subscribe()
   }
 }
 

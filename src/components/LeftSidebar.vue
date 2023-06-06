@@ -21,7 +21,7 @@
     <!-- TODO: Add v-infinite-scroll directive -->
     <div v-loading="chatsLoading" class="overflow-y-auto h-full pb-2 md:pb-6 no-scrollbar">
       <ContactItem
-        v-for="chat in chats"
+        v-for="chat in chatsToShow"
         :key="chat.chat_id!"
         :open="chat.chat_id === $route.params.id"
         :chat="chat"
@@ -45,29 +45,41 @@ const emit = defineEmits(['onClose'])
 
 const chatStore = useChatStore()
 
-const { chats, chatsLoading } = storeToRefs(chatStore)
-const { findChat, getChats } = chatStore
+const { chats, currentChat, chatsLoading } = storeToRefs(chatStore)
+const { findChat } = chatStore
 
 const userInput = ref('')
+const filteredChats = ref<TChatData>([])
+
+const chatsToShow = computed(() =>
+  filteredChats.value.length && userInput.value.trim() ? filteredChats.value : chats.value)
 
 watch(userInput, async (input) => {
   if (input.trim()) {
     debouncedFindChat()
-  } else {
-    chats.value = await getChats() ?? []
   }
 })
 
 const debouncedFindChat = useDebounceFn(async () => {
   try {
     chatsLoading.value = true
-    chats.value = await findChat(userInput.value.trim()) ?? []
+    filteredChats.value = await findChat(userInput.value.trim()) ?? []
   } catch (err) {
     console.log(err)
   } finally {
     chatsLoading.value = false
   }
 }, 300)
+
+const route = useRoute()
+
+watch(route, (route) => {
+  const chatId = route.params.id as string
+
+  if (chatId) {
+    currentChat.value = chatsToShow.value.find((ch) => ch.chat_id === chatId)
+  }
+})
 </script>
 
 <style lang="scss">

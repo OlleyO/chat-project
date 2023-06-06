@@ -76,7 +76,7 @@ const props = defineProps<{
 }>()
 
 const chatStore = useChatStore()
-const { currentChat } = storeToRefs(chatStore)
+const { currentChat, messages } = storeToRefs(chatStore)
 
 const messageInputRef = ref(null)
 
@@ -98,7 +98,7 @@ async function sendMessage () {
 }
 
 async function createChat () {
-  if (currentChat.value) {
+  if (currentChat.value && !messages.value.length) {
     chatService.createNewChat(currentChat.value?.chat_id,
       currentChat.value?.user_id,
       props.senderId)
