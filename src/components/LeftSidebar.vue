@@ -1,6 +1,6 @@
 <template>
   <aside
-    class="transition-all shadow-2xl fixed left-0 w-full md:w-[240px]
+    class="transition-all shadow-2xl fixed left-0 w-full md:w-[240px] flex flex-col
        lg:w-[320px] z-[999] py-12 md:py-3 top-0 bottom-0 border-r
        border-border-primary bg-block-primary"
     :class="open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
@@ -19,7 +19,7 @@
     />
 
     <!-- TODO: Add v-infinite-scroll directive -->
-    <div v-loading="chatsLoading" class="overflow-y-auto h-full pb-2 md:pb-6 no-scrollbar">
+    <div v-loading="chatsLoading" class="overflow-y-auto flex-1 pb-2 md:pb-6 no-scrollbar">
       <ContactItem
         v-for="chat in chatsToShow"
         :key="chat.chat_id!"
@@ -28,6 +28,12 @@
         :online="!!onlineUsers[chat.user_id ?? '']"
       />
     </div>
+    <el-button
+      class="mx-5"
+      @click="$emit('openCreateGroupForm')"
+    >
+      Create Group
+    </el-button>
   </aside>
 </template>
 
@@ -41,12 +47,12 @@ defineProps<{
   onlineUsers: IOnlineUsers
 }>()
 
-const emit = defineEmits(['onClose'])
+const emit = defineEmits(['onClose', 'openCreateGroupForm'])
 
 const chatStore = useChatStore()
 
 const { chats, currentChat, chatsLoading } = storeToRefs(chatStore)
-const { findChat } = chatStore
+const { findChat, getChats } = chatStore
 
 const userInput = ref('')
 const filteredChats = ref<TChatData>([])
@@ -57,6 +63,8 @@ const chatsToShow = computed(() =>
 watch(userInput, async (input) => {
   if (input.trim()) {
     debouncedFindChat()
+  } else {
+    chats.value = await getChats() ?? []
   }
 })
 

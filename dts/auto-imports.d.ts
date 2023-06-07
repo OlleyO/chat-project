@@ -195,7 +195,6 @@ declare global {
   const useGeolocation: typeof import('@vueuse/core')['useGeolocation']
   const useGlobalProperties: typeof import('../src/composables/global-properties')['useGlobalProperties']
   const useHead: typeof import('@vueuse/head')['useHead']
-  const useHttp: typeof import('../src/composables/http/index')['useHttp']
   const useI18n: typeof import('vue-i18n')['useI18n']
   const useIdle: typeof import('@vueuse/core')['useIdle']
   const useImage: typeof import('@vueuse/core')['useImage']
