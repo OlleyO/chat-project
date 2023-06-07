@@ -5,7 +5,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
   const chats = ref<TChatData>([])
   const messages = ref<IMessage[]>([])
-  const currentChat = ref<TChatItem>()
+  const currentChat = ref<TChatItem | null>(null)
 
   const chatsLoading = ref(false)
 

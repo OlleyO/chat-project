@@ -9,7 +9,8 @@ export const supabaseChannels = {
   onlineUsers: 'online-users',
   dbMessages: 'db-messages',
   dbMessagesUpdate: 'db-messages-update',
-  dbChats: 'db-chats'
+  dbChats: 'db-chats',
+  dbChatsDelete: 'db-chats-delete'
 }
 
 export const useSupabase = () => supabaseClient

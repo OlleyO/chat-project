@@ -32,6 +32,7 @@ interface IDatabase {
           created_at: string
           description: string | null
           id: string
+          name: string
           type: string
           updated_at: string
         }
@@ -40,6 +41,7 @@ interface IDatabase {
           created_at?: string
           description?: string | null
           id?: string
+          name?: string
           type?: string
           updated_at?: string
         }
@@ -48,6 +50,7 @@ interface IDatabase {
           created_at?: string
           description?: string | null
           id?: string
+          name?: string
           type?: string
           updated_at?: string
         }
@@ -168,6 +171,28 @@ interface IDatabase {
           unread_messages_count: number
         }[]
       }
+      get_chats_new: {
+        Args: {
+          current_user_id: string
+        }
+        Returns: {
+          chat_id: string
+          chat_created_at: string
+          type: string
+          description: string
+          updated_at: string
+          message_id: string
+          message_created_at: string
+          message: string
+          user_id: string
+          bio: string
+          fullname: string
+          tagname: string
+          username: string
+          avatar_url: string
+          unread_messages_count: number
+        }[]
+      }
       helper: {
         Args: {
           current_user_id: string
@@ -189,6 +214,40 @@ interface IDatabase {
           avatar_url: string
           unread_messages_count: number
         }[]
+      }
+      helper_chat_getter: {
+        Args: {
+          current_user_id: string
+        }
+        Returns: Database['public']['CompositeTypes']['temp_type'][]
+      }
+      helper_new: {
+        Args: {
+          current_user_id: string
+        }
+        Returns: {
+          chat_id: string
+          chat_created_at: string
+          type: string
+          description: string
+          updated_at: string
+          message_id: string
+          message_created_at: string
+          message: string
+          user_id: string
+          bio: string
+          fullname: string
+          tagname: string
+          username: string
+          avatar_url: string
+          unread_messages_count: number
+        }[]
+      }
+      helper_new_new: {
+        Args: {
+          current_user_id: string
+        }
+        Returns: Database['public']['CompositeTypes']['temp_type'][]
       }
       username_fullname_tagname:
       | {
@@ -226,12 +285,51 @@ interface IDatabase {
           unread_messages_count: number
         }[]
       }
+      username_fullname_tagname_new: {
+        Args: {
+          search_query: string
+          user_id: string
+        }
+        Returns: {
+          chat_id: string
+          chat_created_at: string
+          type: string
+          description: string
+          updated_at: string
+          message_id: string
+          message_created_at: string
+          message: string
+          user_id: string
+          bio: string
+          fullname: string
+          tagname: string
+          username: string
+          avatar_url: string
+          unread_messages_count: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
     }
     CompositeTypes: {
-      [_ in never]: never
+      temp_type: {
+        chat_id: string
+        chat_created_at: string
+        type: string
+        description: string
+        updated_at: string
+        message_id: string
+        message_created_at: string
+        message: string
+        user_id: string
+        bio: string
+        fullname: string
+        tagname: string
+        username: string
+        avatar_url: string
+        unread_messages_count: number
+      }
     }
   }
 }

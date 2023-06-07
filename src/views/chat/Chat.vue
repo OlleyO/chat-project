@@ -131,9 +131,12 @@ function addMessage (newMessage: IMessage, chatId: string) {
 function clearConversation (chat: any) {
   if (currentChat.value?.chat_id === chat.id) {
     messages.value = []
+    currentChat.value = null
 
     router.replace({ name: routeNames.chat })
   }
+
+  chats.value = chats.value.filter((ch) => ch.chat_id !== chat.id)
 }
 
 async function initialLoadMessages (chatId: string) {
@@ -149,8 +152,32 @@ async function initialLoadMessages (chatId: string) {
   }
 }
 
-function subscribeToChatMessagesEvents (chatId: string) {
-  chatService.onNewMessage((newMessage) => {
+async function subscribeToChatMessagesEvents (chatId: string) {
+  let newChat: IDatabase['public']['Tables']['chats']['Row'] | null = null
+
+  await chatService.onNewChat(async (chat) => {
+    newChat = chat
+
+    console.log('chat event')
+  })
+
+  chatService.onNewMessage(async (newMessage) => {
+    console.log('message event')
+    console.log(newChat)
+
+    if (newChat) {
+      const fetchedChats = await chatService.getChatsViews(currentUser.value?.id, newChat.id)
+
+      if (fetchedChats.length) {
+        chats.value = [{
+          ...fetchedChats[0],
+          unread_messages_count: 0
+        }, ...chats.value]
+      }
+
+      newChat = null
+    }
+
     addMessage(newMessage, chatId)
   })
 
