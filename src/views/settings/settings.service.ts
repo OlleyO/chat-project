@@ -53,6 +53,16 @@ class SettingsService {
 
     return data
   }
+
+  async deleteAccount (userId: string) {
+    const { error } = await useSupabase().rpc('delete_user', {
+      user_id: userId
+    })
+
+    if (error) {
+      throw error
+    }
+  }
 }
 
 export const settingsService = new SettingsService()

@@ -58,21 +58,27 @@
           />
         </el-form-item>
 
-        <router-link class="text-sm text-link-primary" :to="{ name: $routeNames.forgotPassword }">
+        <router-link class="text-sm text-link-primary mb-5" :to="{ name: $routeNames.forgotPassword }">
           Reset password
         </router-link>
 
-        <div class="flex justify-end gap-5">
+        <div class="flex justify-between gap-5">
+          <el-button :type="$elComponentType.danger" @click="deleteAccountModalVisible = true">
+            Delete Account
+          </el-button>
+
           <el-button :type="$elComponentType.primary" :disabled="!changesApplied" @click="submit(profileFormRef)">
             Save
           </el-button>
         </div>
       </el-form>
     </div>
+    <DeleteAccountModal v-model="deleteAccountModalVisible" />
   </div>
 </template>
 
 <script lang="ts" setup>
+import DeleteAccountModal from './components/DeleteAccountModal.vue'
 import { settingsService } from './settings.service'
 
 const authStore = useAuthStore()
@@ -80,6 +86,7 @@ const { loadUser } = authStore
 const { currentUser } = storeToRefs(authStore)
 
 const loading = ref(false)
+const deleteAccountModalVisible = ref(false)
 
 const profileFormRef = useElFormRef()
 const profileModel = useElFormModel<IProfile>({
@@ -146,8 +153,12 @@ function submit (formRef) {
           ...profileModel,
           avatar_url: avatarUrl || profileModel.avatar_url
         })
+
+        notificationHandler('Profile updated', {
+          type: 'success'
+        })
       } catch (err) {
-        console.log(err)
+        notificationHandler(err as TAppError)
       } finally {
         loading.value = false
       }

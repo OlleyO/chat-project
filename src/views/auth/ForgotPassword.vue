@@ -46,7 +46,7 @@ function submit (formRef) {
 
         notificationHandler('Check your email to reset password', { duration: 0, type: 'success' })
       } catch (err) {
-        notificationHandler(err as Error)
+        notificationHandler(err as TAppError)
       } finally {
         loading.value = false
       }

@@ -79,7 +79,7 @@ function submit (formRef) {
 
         router.push({ name: 'chat' })
       } catch (err) {
-        notificationHandler(err as Error)
+        notificationHandler(err as TAppError)
       } finally {
         loading.value = false
       }

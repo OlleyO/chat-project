@@ -48,7 +48,7 @@ function submit (formRef) {
         await resetPassword(resetPasswordModel.password)
         notificationHandler('Successfully reset password', { duration: 2000, type: 'success' })
       } catch (err) {
-        notificationHandler(err as Error)
+        notificationHandler(err as TAppError)
       } finally {
         loading.value = false
       }

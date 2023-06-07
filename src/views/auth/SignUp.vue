@@ -101,7 +101,7 @@ function submit (formRef) {
 
         router.push({ name: routeNames.login })
       } catch (err) {
-        notificationHandler(err as Error)
+        notificationHandler(err as TAppError)
       } finally {
         loading.value = false
       }
