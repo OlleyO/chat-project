@@ -44,6 +44,12 @@ export const useChatStore = defineStore('chatStore', () => {
     }
   }
 
+  async function deleteConversation () {
+    if (currentChat.value) {
+      chatService.deleteConversation(currentChat.value?.chat_id)
+    }
+  }
+
   return {
     chats,
     messages,
@@ -52,6 +58,7 @@ export const useChatStore = defineStore('chatStore', () => {
     lastReadMessage,
     loadMessageBatch,
     getChats,
-    findChat
+    findChat,
+    deleteConversation
   }
 })

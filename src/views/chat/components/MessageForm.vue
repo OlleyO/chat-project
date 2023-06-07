@@ -55,6 +55,7 @@
 </template>
 
 <script lang="ts" setup>
+import type { PostgrestError } from '@supabase/supabase-js'
 import Camera from 'simple-vue-camera'
 
 const modelUrl = 'https://tensorflowjsrealtimemodel.s3.au-syd.cloud-object-storage.appdomain.cloud/model.json'
@@ -90,7 +91,7 @@ const isValid = computed(() =>
 )
 
 async function sendMessage () {
-  chatService.createNewMessage({
+  await chatService.createNewMessage({
     message: sendMessageModel.message,
     chat_id: props.chatId,
     sender_id: props.senderId
@@ -99,7 +100,7 @@ async function sendMessage () {
 
 async function createChat () {
   if (currentChat.value && !messages.value.length) {
-    chatService.createNewChat(currentChat.value?.chat_id,
+    await chatService.createNewChat(currentChat.value?.chat_id,
       currentChat.value?.user_id,
       props.senderId)
   }
@@ -107,9 +108,13 @@ async function createChat () {
 
 async function submitMessage (formRef, inputRef) {
   if (isValid.value) {
-    await createChat()
-    await sendMessage()
-    inputRef.resetField()
+    try {
+      await createChat()
+      await sendMessage()
+      inputRef.resetField()
+    } catch (err) {
+      notificationHandler(errors.message[(err as PostgrestError).code] || (err as TAppError))
+    }
   }
 }
 </script>

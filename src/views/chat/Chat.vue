@@ -8,6 +8,7 @@
       class="overflow-y-auto no-scrollbar flex-1 w-full px-5 md:px-20 pb-5 flex flex-col gap-6"
     >
       <div v-loading="messagesBatchLoading" />
+
       <Message
         v-for="message in messages"
         :key="message.id" :message="message"
@@ -77,7 +78,10 @@ async function loadChatsAndRedirectToLastActive () {
       })
     }
   } catch (err) {
-    console.log(err)
+    notificationHandler(err as TAppError)
+    router.replace({
+      name: routeNames.chat
+    })
   } finally {
     chatsLoading.value = false
   }
@@ -124,9 +128,11 @@ function addMessage (newMessage: IMessage, chatId: string) {
   }
 }
 
-function addChat (newChat: TChatItem, chatId: string, currentUserId: string) {
-  if (newChat.user_id === currentUserId || chatId === newChat.chat_id) {
-    chats.value = [newChat, ...chats.value]
+function clearConversation (chat: any) {
+  if (currentChat.value?.chat_id === chat.id) {
+    messages.value = []
+
+    router.replace({ name: routeNames.chat })
   }
 }
 
@@ -137,24 +143,23 @@ async function initialLoadMessages (chatId: string) {
     messagesLoading.value = true
     await loadMessageBatch(chatId)
   } catch (err) {
-    console.log(err)
+    notificationHandler(err as TAppError)
   } finally {
     messagesLoading.value = false
   }
 }
 
 function subscribeToChatMessagesEvents (chatId: string) {
-  chatService.onNewChat((newChat) => {
-    console.log(currentUser.value?.id)
-    addChat(newChat, chatId, currentUser.value?.id)
-  }, currentUser.value?.id)
-
   chatService.onNewMessage((newMessage) => {
     addMessage(newMessage, chatId)
   })
 
   chatService.onUpdateMessage((updatedMessage) => {
     markAsRead(updatedMessage)
+  })
+
+  chatService.onDeleteChat((chat) => {
+    clearConversation(chat)
   })
 }
 
@@ -165,8 +170,8 @@ watch(route, async (route) => {
 
   if (chatId) {
     initialLoadMessages(chatId)
-
-    subscribeToChatMessagesEvents(chatId)
   }
+
+  subscribeToChatMessagesEvents(chatId)
 }, { immediate: true })
 </script>

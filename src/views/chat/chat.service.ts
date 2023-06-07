@@ -123,11 +123,26 @@ class ChatService {
     }
   }
 
-  onNewChat (handler: (...args: any[]) => void, currentUserId: string) {
-    useSupabase().channel(supabaseChannels.dbChats).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chats' }, async (payload) => {
-      const chats = await this.getChatsViews(currentUserId, payload.new.chat_id)
+  // async createNewGroup () {
+  // }
 
-      handler(chats[0])
+  onNewChat (handler: (...args: any[]) => void) {
+    useSupabase().channel(supabaseChannels.dbChats).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chats' }, async (payload) => {
+      handler(payload.new)
+    }).subscribe()
+  }
+
+  async deleteConversation (chatId: string) {
+    const { error } = await useSupabase().from('chats').delete().eq('id', chatId)
+
+    if (error) {
+      throw error
+    }
+  }
+
+  onDeleteChat (handler: (...args: any[]) => void) {
+    useSupabase().channel(supabaseChannels.dbChatsDelete).on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chats' }, payload => {
+      handler(payload.old)
     }).subscribe()
   }
 }
