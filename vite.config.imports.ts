@@ -11,7 +11,9 @@ export const ImportsBuilder = () => AutoImport({
     './src/store/modules',
     './src/services',
     './src/views/**/*.store.ts',
-    './src/views/**/*.service.ts'
+    './src/views/**/*.service.ts',
+    './src/helpers/**/*.ts',
+    './src/core/**/*.ts'
   ],
 
   eslintrc: {

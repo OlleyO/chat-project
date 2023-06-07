@@ -3,6 +3,8 @@ import { routeNames } from '@/router/route-names'
 import { globalProperties, portalNames } from '@/plugins'
 import { EBadgeType, EElComponentSize, EElComponentType } from '@/types/enums'
 
+import type { PostgrestError, AuthError } from '@supabase/supabase-js'
+
 declare module 'vue-router' {
   interface RouteMeta {
     // todo: this is just an example. Please setup your own route meta params.
@@ -29,6 +31,8 @@ declare global {
   interface ObjectConstructor {
     keys<T>(obj: T): Array<keyof T>
   }
+
+  type TAppError = PostgrestError | Error | AuthError | string
 }
 
 export { }

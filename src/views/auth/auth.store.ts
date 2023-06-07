@@ -42,7 +42,7 @@ export const useAuthStore = defineStore('authStore', () => {
 
   function startListenToAuthStateChange () {
     useSupabase().auth.onAuthStateChange((event, session) => {
-      if (!session) {
+      if (!isAuthenticated) {
         router.replace({ name: 'login' })
       }
 

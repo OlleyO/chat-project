@@ -23,6 +23,8 @@
 </template>
 
 <script lang="ts" setup>
+import { notificationHandler } from '@/helpers'
+
 const forgotPasswordRef = useElFormRef()
 const forgotPasswordModel = useElFormModel<IForgotPasswordPayload>({
   email: ''
@@ -41,8 +43,10 @@ function submit (formRef) {
       try {
         loading.value = true
         await sendPasswordResetEmail(forgotPasswordModel.email)
+
+        notificationHandler('Check your email to reset password', { duration: 0, type: 'success' })
       } catch (err) {
-        console.log(err)
+        notificationHandler(err as Error)
       } finally {
         loading.value = false
       }

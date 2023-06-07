@@ -53,6 +53,7 @@
 
 <script lang="ts" setup>
 import Logo from '@/components/icons/Logo.vue'
+import { notificationHandler } from '@/helpers'
 
 const loginFormRef = useElFormRef()
 const loginModel = useElFormModel<IAuthWithEmailAndPasswordPayload>({ email: '', password: '' })
@@ -73,9 +74,12 @@ function submit (formRef) {
       try {
         loading.value = true
         await logIn(loginModel)
+
+        notificationHandler('Success', { duration: 2000, type: 'success' })
+
         router.push({ name: 'chat' })
       } catch (err) {
-        console.log(err)
+        notificationHandler(err as Error)
       } finally {
         loading.value = false
       }

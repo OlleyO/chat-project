@@ -64,6 +64,9 @@
 </template>
 
 <script lang="ts" setup>
+import { notificationHandler } from '@/helpers'
+import { routeNames } from '@/router/route-names'
+
 const registerFormRef = useElFormRef()
 const registerModel = useElFormModel<TAuthWithEmailAndPasswordPayload>({
   email: '',
@@ -93,9 +96,12 @@ function submit (formRef) {
         await register({
           ...registerModel
         })
-        router.push({ name: 'chat' })
+
+        notificationHandler('Now, check your email to confirm it', { duration: 0, type: 'success' })
+
+        router.push({ name: routeNames.login })
       } catch (err) {
-        console.log(err)
+        notificationHandler(err as Error)
       } finally {
         loading.value = false
       }

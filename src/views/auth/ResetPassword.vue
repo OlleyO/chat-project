@@ -26,6 +26,8 @@
 </template>
 
 <script lang="ts" setup>
+import { notificationHandler } from '@/helpers';
+
 const resetPasswordRef = useElFormRef()
 const resetPasswordModel = useElFormModel<IResetPasswordPayload>({
   password: ''
@@ -44,8 +46,9 @@ function submit (formRef) {
       try {
         loading.value = true
         await resetPassword(resetPasswordModel.password)
+        notificationHandler('Successfully reset password', { duration: 2000, type: 'success' })
       } catch (err) {
-        console.log(err)
+        notificationHandler(err as Error)
       } finally {
         loading.value = false
       }
