@@ -7,10 +7,9 @@ export const routeGuard = async (
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) => {
-  // todo: please write your own route guard
-  const authStore = useAuthStore()
+  const { isAuthenticated } = storeToRefs(useAuthStore())
 
-  if (!to.meta.requireAuth || authStore.isAuthenticated) {
+  if (!to.meta.requireAuth || isAuthenticated) {
     return next()
   } else {
     return next({ name: routeNames.login })
