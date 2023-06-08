@@ -4,7 +4,7 @@ export const useAuthStore = defineStore('authStore', () => {
   const currentUser = ref<User | null>(null)
   const onlineUsers = ref<IOnlineUsers>({})
 
-  const isAuthenticated = computed(() => !!currentUser)
+  const isAuthenticated = computed(() => !!currentUser.value)
 
   const router = useRouter()
 
@@ -42,10 +42,6 @@ export const useAuthStore = defineStore('authStore', () => {
 
   function startListenToAuthStateChange () {
     useSupabase().auth.onAuthStateChange((event, session) => {
-      if (!isAuthenticated) {
-        router.replace({ name: 'login' })
-      }
-
       switch (event) {
         case 'USER_UPDATED':
           loadUser()

@@ -72,7 +72,8 @@ import CloseCross from '@/components/icons/CloseCross.vue'
 
 defineProps<{
   modelValue: boolean
-  currentChat?: TChatItem
+  currentChat: TCurrentChat
 }>()
+
 defineEmits(['update:modelValue', 'deleteChat'])
 </script>

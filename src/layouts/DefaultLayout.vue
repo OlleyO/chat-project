@@ -1,8 +1,4 @@
 <template>
-  <!--
-    This layout is just an example.
-    Please create your own depending on your projects needs
-  -->
   <div class="h-full overflow-hidden max-w-[1440px]">
     <LeftSidebar
       :onlineUsers="onlineUsers"
@@ -34,18 +30,13 @@
 </template>
 
 <script lang="ts" setup>
-import Header from '@/components/Header.vue'
-import LeftSidebar from '@/components/LeftSidebar.vue'
-import RightSidebar from '@/components/RightSidebar.vue'
-
 const leftSidebarOpen = ref(false)
 const rightDrawer = ref(false)
 const createGroupFormVisible = ref(false)
 
-const authStore = useAuthStore()
 const chatStore = useChatStore()
 
-const { currentUser, onlineUsers } = storeToRefs(authStore)
+const { currentUser, onlineUsers } = storeToRefs(useAuthStore())
 const { currentChat } = storeToRefs(chatStore)
 const { deleteConversation } = chatStore
 

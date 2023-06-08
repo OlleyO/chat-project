@@ -23,8 +23,6 @@
 </template>
 
 <script lang="ts" setup>
-import { notificationHandler } from '@/helpers'
-
 const forgotPasswordRef = useElFormRef()
 const forgotPasswordModel = useElFormModel<IForgotPasswordPayload>({
   email: ''

@@ -39,8 +39,6 @@
 
 <script lang="ts" setup>
 import MagnifyingGlass from '@/components/icons/MagnifyingGlass.vue'
-import ContactItem from '@/components/ContactItem.vue'
-import { useChatStore } from '@/views/chat/chat.store'
 
 defineProps<{
   open?: boolean
@@ -50,7 +48,6 @@ defineProps<{
 const emit = defineEmits(['onClose', 'openCreateGroupForm'])
 
 const chatStore = useChatStore()
-
 const { chats, currentChat, chatsLoading } = storeToRefs(chatStore)
 const { findChat, getChats } = chatStore
 
@@ -92,7 +89,6 @@ watch(route, (route) => {
 
 <style lang="scss">
 .search-input {
-
   .el-input__prefix {
     @apply text-xl leading-none;
   }

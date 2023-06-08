@@ -1,6 +1,5 @@
-import type Camera from 'simple-vue-camera'
-
 import * as tf from '@tensorflow/tfjs'
+import type Camera from 'simple-vue-camera'
 
 export function useCameraSignRecognition (modelUrl: string) {
   const webcamRef = ref<InstanceType<typeof Camera> | null>(null)
@@ -94,15 +93,10 @@ export function useCameraSignRecognition (modelUrl: string) {
         const casted = resized.cast('int32')
         const expanded = casted.expandDims(0)
         const obj = (await net.executeAsync(expanded)) as tf.Tensor<tf.Rank>[]
-        console.log(obj)
 
         const boxes = (await obj[1].array()) as number[][][]
         const classes = (await obj[2].array()) as number[][]
         const scores = (await obj[4].array()) as number[][]
-
-        console.log(boxes)
-        console.log(classes)
-        console.log(scores)
 
         const ctx = canvasRef.value?.getContext('2d')
 

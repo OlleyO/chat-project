@@ -53,7 +53,6 @@
 
 <script lang="ts" setup>
 import Logo from '@/components/icons/Logo.vue'
-import { notificationHandler } from '@/helpers'
 
 const loginFormRef = useElFormRef()
 const loginModel = useElFormModel<IAuthWithEmailAndPasswordPayload>({ email: '', password: '' })

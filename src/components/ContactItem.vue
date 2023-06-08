@@ -31,6 +31,7 @@
 
           }).format(new Date(chat.message_created_at)) : '' }}
         </span>
+
         <Badge
           v-if="chat.unread_messages_count"
           :type="$badgeType.primary"
@@ -44,8 +45,6 @@
 </template>
 
 <script lang="ts" setup>
-import Badge from '@/components/Badge.vue'
-
 defineProps<{
   chat: IDatabase['public']['Views']['chat_view']['Row']
   open: boolean

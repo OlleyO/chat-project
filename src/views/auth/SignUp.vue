@@ -64,7 +64,6 @@
 </template>
 
 <script lang="ts" setup>
-import { notificationHandler } from '@/helpers'
 import { routeNames } from '@/router/route-names'
 
 const registerFormRef = useElFormRef()

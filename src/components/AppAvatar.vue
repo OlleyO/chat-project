@@ -20,10 +20,6 @@ defineProps<{
 }>()
 
 function createInitials (fullname?: string | null) {
-  if (!fullname) {
-    return ''
-  }
-
-  return fullname?.split(' ').map(str => str.charAt(0)).join('')
+  return fullname?.split(' ').map(str => str.charAt(0)).join('') || ''
 }
 </script>

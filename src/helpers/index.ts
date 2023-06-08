@@ -1,5 +1,3 @@
-import type { TAppError } from '@/types/general'
-
 import { ElNotification, type NotificationParams } from 'element-plus'
 
 export const notificationHandler = (message: TAppError, options?: NotificationParams) => {

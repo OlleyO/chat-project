@@ -26,8 +26,6 @@
 </template>
 
 <script lang="ts" setup>
-import { notificationHandler } from '@/helpers';
-
 const resetPasswordRef = useElFormRef()
 const resetPasswordModel = useElFormModel<IResetPasswordPayload>({
   password: ''

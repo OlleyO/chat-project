@@ -9,7 +9,6 @@
       <AppLogo class="hidden md:flex items-center" />
       <p class="font-semibold text-sm text-primary">
         {{ currentChat?.fullname }}
-        <!-- <span class="font-normal text-secondary">{{ lastSeen }}</span> -->
       </p>
     </div>
 
@@ -60,12 +59,11 @@
 import type { User } from '@supabase/supabase-js'
 
 import BurgerMenu from '@/components/icons/BurgerMenu.vue'
-import AppLogo from '@/components/AppLogo.vue'
 import Dots from '@/components/icons/Dots.vue'
 import Gear from '@/components/icons/Gear.vue'
 
 defineProps<{
-  currentChat?: TChatItem
+  currentChat: TCurrentChat
   currentUser: User | null
 }>()
 
