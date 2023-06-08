@@ -20,8 +20,8 @@ export default defineConfig({
         name: 'Chat Project AIChat',
         short_name: 'AIChat',
         description: 'Diploma, App Chat',
-        theme_color: '#fff',
-        background_color: '#fff',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
         display: 'standalone',
         icons: [
           {
