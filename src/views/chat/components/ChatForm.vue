@@ -14,17 +14,17 @@
       :model="formModel"
       :rules="formRules"
     >
-      <el-form-item label="Group name">
-        <el-input />
+      <el-form-item label="Group name" prop="name">
+        <el-input v-model="formModel.name" />
       </el-form-item>
-      <el-form-item label="Description">
-        <el-input />
+      <el-form-item label="Description" prop="description">
+        <el-input v-model="formModel.description" />
       </el-form-item>
     </el-form>
     <template #footer>
       <div class="flex gap-2 justify-end">
         <el-button @click="closeForm">Cancel</el-button>
-        <el-button type="primary" @click="submit">
+        <el-button type="primary" @click="submit(formRef)">
           Confirm
         </el-button>
       </div>
@@ -35,7 +35,7 @@
 <script lang="ts" setup>
 const props = defineProps<{
   modelValue: boolean
-  creatorId: string
+  creatorId?: string
 }>()
 
 const loading = ref(false)
@@ -49,7 +49,7 @@ const formModel = useElFormModel({
   type: 'group'
 })
 const formRules = useElFormRules({
-  name: [useMinLenRule(3), useRequiredRule(), useMaxLenRule(10)],
+  name: [useMinLenRule(3), useRequiredRule(), useMaxLenRule(25)],
   description: [useMaxLenRule(25)]
 })
 
@@ -58,7 +58,10 @@ function closeForm () {
 }
 
 async function createChat () {
-  await chatService.createNewGroup()
+  await chatService.createNewGroup({
+    ...formModel,
+    admin_id: props.creatorId
+  })
 }
 
 function submit (formRef) {
@@ -66,8 +69,12 @@ function submit (formRef) {
     if (valid) {
       try {
         loading.value = true
+        await createChat()
+        notificationHandler('Chat created', {
+          type: 'success'
+        })
       } catch (err) {
-        console.log(err)
+        notificationHandler(err as TAppError)
       } finally {
         loading.value = false
         closeForm()

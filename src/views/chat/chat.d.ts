@@ -7,3 +7,5 @@ interface IMessage extends TGetMessagesDataType {
 type TChatData = IDatabase['public']['Functions']['get_chats']['Returns']
 
 type TChatItem = TArrayElement<TChatData>
+
+type TCurrentChat = TChatItem | null | undefined

@@ -87,6 +87,10 @@ async function loadChatsAndRedirectToLastActive () {
   }
 }
 
+// onMounted(async () => {
+//  await loadChatsAndRedirectToLastActive()
+// })
+
 watch(currentUser, async () => {
   loadChatsAndRedirectToLastActive()
 }, { immediate: true })

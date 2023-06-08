@@ -123,8 +123,22 @@ class ChatService {
     }
   }
 
-  // async createNewGroup () {
-  // }
+  async createNewGroup (payload: any) {
+    const { data, error: error1 } = await useSupabase().from('chats').insert(payload).select()
+
+    if (error1) {
+      throw error1
+    }
+
+    const { error: error2 } = await useSupabase().from('chat_to_user').insert({
+      chat_id: data[0].id,
+      user_id: payload.admin_id
+    })
+
+    if (error2) {
+      throw error2
+    }
+  }
 
   async onNewChat (handler: (...args: any[]) => void) {
     useSupabase().channel(supabaseChannels.dbChats).on('postgres_changes',
