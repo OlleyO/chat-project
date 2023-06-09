@@ -87,10 +87,6 @@ async function loadChatsAndRedirectToLastActive () {
   }
 }
 
-// onMounted(async () => {
-//  await loadChatsAndRedirectToLastActive()
-// })
-
 watch(currentUser, async () => {
   loadChatsAndRedirectToLastActive()
 }, { immediate: true })
@@ -132,6 +128,19 @@ function addMessage (newMessage: IMessage, chatId: string) {
   }
 }
 
+async function addNewChat (chat: IDatabase['public']['Tables']['chats']['Row']) {
+  if (currentUser.value) {
+    const fetchedChats = await chatService.getChatsViews(currentUser.value?.id, chat.id)
+
+    if (fetchedChats.length) {
+      chats.value = [{
+        ...fetchedChats[0],
+        unread_messages_count: 0
+      }, ...chats.value]
+    }
+  }
+}
+
 function clearConversation (chat: any) {
   if (currentChat.value?.chat_id === chat.id) {
     messages.value = []
@@ -161,24 +170,11 @@ async function subscribeToChatMessagesEvents (chatId: string) {
 
   await chatService.onNewChat(async (chat) => {
     newChat = chat
-
-    console.log('chat event')
   })
 
   chatService.onNewMessage(async (newMessage) => {
-    console.log('message event')
-    console.log(newChat)
-
     if (newChat) {
-      const fetchedChats = await chatService.getChatsViews(currentUser.value?.id, newChat.id)
-
-      if (fetchedChats.length) {
-        chats.value = [{
-          ...fetchedChats[0],
-          unread_messages_count: 0
-        }, ...chats.value]
-      }
-
+      await addNewChat(newChat)
       newChat = null
     }
 

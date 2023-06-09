@@ -70,7 +70,6 @@ export const useAuthStore = defineStore('authStore', () => {
       })
 
       channel?.on('presence', { event: 'leave' }, ({ leftPresences }) => {
-        console.log('Users have left: ', leftPresences)
         onlineUsers.value = {
           ...onlineUsers.value,
           [leftPresences[0].id]: false

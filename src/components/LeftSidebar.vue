@@ -70,7 +70,7 @@ const debouncedFindChat = useDebounceFn(async () => {
     chatsLoading.value = true
     filteredChats.value = await findChat(userInput.value.trim()) ?? []
   } catch (err) {
-    console.log(err)
+    notificationHandler(err as TAppError)
   } finally {
     chatsLoading.value = false
   }
