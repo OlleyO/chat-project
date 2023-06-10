@@ -10,13 +10,14 @@
     <Header
       :currentChat="currentChat"
       :currentUser="currentUser"
-      @onMenuClick="leftSidebarOpen=!leftSidebarOpen" @onInfoClick="rightDrawer=true"
+      @onMenuClick="leftSidebarOpen=!leftSidebarOpen"
+      @onInfoClick="rightDrawer=true"
     />
 
     <RightSidebar
       v-model="rightDrawer"
       :currentChat="currentChat"
-      @deleteChat="handleDeleteConversation"
+      @deleteChat="handleDeleteChat"
     />
     <div class="md:pl-[240px] lg:pl-[320px] pt-14 h-full px-0 ">
       <router-view />
@@ -38,10 +39,15 @@ const chatStore = useChatStore()
 
 const { currentUser, onlineUsers } = storeToRefs(useAuthStore())
 const { currentChat } = storeToRefs(chatStore)
-const { deleteConversation } = chatStore
+const { deleteChat } = chatStore
 
-async function handleDeleteConversation () {
-  await deleteConversation()
-  rightDrawer.value = false
+async function handleDeleteChat () {
+  try {
+    await deleteChat()
+  } catch (err) {
+    notificationHandler(err as TAppError)
+  } finally {
+    rightDrawer.value = false
+  }
 }
 </script>

@@ -151,7 +151,7 @@ class ChatService {
       }).subscribe()
   }
 
-  async deleteConversation (chatId: string) {
+  async deleteChat (chatId: string) {
     const { error } = await useSupabase().from('chats').delete().eq('id', chatId)
 
     if (error) {

@@ -79,7 +79,6 @@ export const useAuthStore = defineStore('authStore', () => {
       channel.subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
           await channel?.track({
-            online_at: new Date().toISOString(),
             id: currentUser?.value?.id
           })
         }

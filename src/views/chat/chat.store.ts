@@ -1,6 +1,9 @@
 import { chatService } from './chat.service'
 
 export const useChatStore = defineStore('chatStore', () => {
+  const authStore = useAuthStore()
+  const { currentUser } = storeToRefs(authStore)
+
   const maxMessagesPerRequest = 20
 
   const chats = ref<TChatData>([])
@@ -15,9 +18,6 @@ export const useChatStore = defineStore('chatStore', () => {
 
     return messages.value[lastReadIndex]
   })
-
-  const authStore = useAuthStore()
-  const { currentUser } = storeToRefs(authStore)
 
   async function loadMessageBatch (chatId: string) {
     const messageBatch = await chatService.getMessages(messages.value.length,
@@ -37,17 +37,19 @@ export const useChatStore = defineStore('chatStore', () => {
   }
 
   async function findChat (searchQuery: string) {
-    if (currentUser.value) {
-      const wantedChats = await chatService.findChats(searchQuery, currentUser.value.id)
-
-      return wantedChats as TChatData
+    if (!currentUser.value) {
+      throw new Error('Error finding chats')
     }
+
+    return await chatService.findChats(searchQuery, currentUser.value.id) as TChatData
   }
 
-  async function deleteConversation () {
-    if (currentChat.value) {
-      chatService.deleteConversation(currentChat.value?.chat_id)
+  async function deleteChat () {
+    if (!currentChat.value) {
+      throw new Error('Select chat to delete')
     }
+
+    await chatService.deleteChat(currentChat.value.chat_id)
   }
 
   return {
@@ -59,6 +61,6 @@ export const useChatStore = defineStore('chatStore', () => {
     loadMessageBatch,
     getChats,
     findChat,
-    deleteConversation
+    deleteChat
   }
 })

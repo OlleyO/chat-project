@@ -11,14 +11,25 @@
 
       <Message
         v-for="message in messages"
-        :key="message.id" :message="message"
+        ref="messagesRef"
+        :key="message.id"
+        :message="message"
         :currentUserMessage="currentUser?.id === message.users.id"
         :last="message.id === messages[messages.length-1].id"
         :lastRead="message.id === lastReadMessage?.id"
-        @onMessageRead="markAsRead"
       />
-      <NoMessage v-if="!messages.length && !messagesLoading" class="self-center my-auto" />
+      <NoContent
+        v-if="!messages.length && !messagesLoading"
+        class="self-center my-auto" message="Start Conversation"
+      />
     </div>
+
+    <el-button
+      v-if="showScrollToLastReadButton"
+      class="absolute bottom-40 right-5" @click="scrollToLastRead"
+    >
+      Scroll to last
+    </el-button>
 
     <div class="md:min-w-[320px] w-full pt-2 px-5 flex-shrink-0 pb-5">
       <MessageForm
@@ -34,9 +45,10 @@ import { routeNames } from '@/router/route-names'
 
 import Message from './components/Message.vue'
 import MessageForm from './components/MessageForm.vue'
-import NoMessage from './components/NoMessages.vue'
 
 const route = useRoute()
+
+const messagesRef = ref<InstanceType<typeof Message>[]>([])
 
 const authStore = useAuthStore()
 const chatStore = useChatStore()
@@ -46,6 +58,17 @@ const messagesBatchLoading = ref(false)
 
 const { currentUser } = storeToRefs(authStore)
 const { messages, lastReadMessage, chats, currentChat, chatsLoading } = storeToRefs(chatStore)
+
+const showScrollToLastReadButton = computed(
+  () => lastReadMessage.value && lastReadMessage.value.users.id !== currentUser.value?.id)
+
+async function scrollToLastRead () {
+  messagesRef.value.find(m => m.$props.lastRead)?.$el.scrollIntoView({
+    behavior: 'smooth',
+    block: 'end',
+    inline: 'nearest'
+  })
+}
 
 const { loadMessageBatch, getChats } = chatStore
 
