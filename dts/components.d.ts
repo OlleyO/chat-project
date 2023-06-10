@@ -40,14 +40,10 @@ declare module '@vue/runtime-core' {
     MagnifyingGlass: typeof import('./../src/components/icons/MagnifyingGlass.vue')['default']
     Message: typeof import('./../src/views/chat/components/Message.vue')['default']
     MessageForm: typeof import('./../src/views/chat/components/MessageForm.vue')['default']
-    NoChats: typeof import('./../src/views/chat/components/NoChats.vue')['default']
     NoContent: typeof import('./../src/components/NoContent.vue')['default']
-    NoContentText: typeof import('./../src/views/chat/components/NoContentText.vue')['default']
-    NoMessages: typeof import('./../src/views/chat/components/NoMessages.vue')['default']
     RightSidebar: typeof import('./../src/components/RightSidebar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    ScrollToUnreadButton: typeof import('./../src/views/chat/components/ScrollToUnreadButton.vue')['default']
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']

@@ -14,9 +14,11 @@
         <el-button @click="toggleCamera">
           Stop Camera
         </el-button>
+
         <el-button @click="sendMessageModel.message=signLanguageMessage">
           Save to input
         </el-button>
+
         <el-button @click="flip">
           Flip
         </el-button>
@@ -25,6 +27,7 @@
       <canvas ref="canvasRef" class="w-full h-full absolute left-0 right-0 top-0" />
     </Camera>
   </div>
+
   <el-form
     ref="sendMessageFormRef"
     :model="sendMessageModel"
@@ -49,14 +52,16 @@
       >
         Send
       </el-button>
+
       <el-button v-if="!cameraActive" @click="toggleCamera">SLD</el-button>
     </div>
   </el-form>
 </template>
 
 <script lang="ts" setup>
-import type { PostgrestError } from '@supabase/supabase-js'
 import Camera from 'simple-vue-camera'
+
+import type { PostgrestError } from '@supabase/supabase-js'
 
 const modelUrl = 'https://tensorflowjsrealtimemodel.s3.au-syd.cloud-object-storage.appdomain.cloud/model.json'
 

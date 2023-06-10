@@ -17,13 +17,16 @@
       <el-form-item label="Group name" prop="name">
         <el-input v-model="formModel.name" />
       </el-form-item>
+
       <el-form-item label="Description" prop="description">
         <el-input v-model="formModel.description" />
       </el-form-item>
     </el-form>
+
     <template #footer>
       <div class="flex gap-2 justify-end">
         <el-button @click="closeForm">Cancel</el-button>
+
         <el-button type="primary" @click="submit(formRef)">
           Confirm
         </el-button>
@@ -38,9 +41,9 @@ const props = defineProps<{
   creatorId?: string
 }>()
 
-const loading = ref(false)
-
 const emit = defineEmits(['update:modelValue'])
+
+const loading = ref(false)
 
 const formRef = useElFormRef()
 const formModel = useElFormModel({

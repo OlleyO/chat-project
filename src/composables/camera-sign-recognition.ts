@@ -8,20 +8,6 @@ export function useCameraSignRecognition (modelUrl: string) {
   const interval = ref<NodeJS.Timer | null>()
   const signLanguageMessage = ref('')
 
-  // Hello
-  // Thank u
-  // I love u
-  // Yes
-  // No
-  // TODO: Uncomment for diploma
-  // const labelMap: ILabelMap = {
-  //   1: { name: 'Hello', color: 'red' },
-  //   2: { name: 'Thank u', color: 'yellow' },
-  //   3: { name: 'I love u', color: 'lime' },
-  //   4: { name: 'Yes', color: 'blue' },
-  //   5: { name: 'No', color: 'purple' }
-  // }
-
   const labelMap: ILabelMap = {
     1: { name: '👋', color: 'red' },
     2: { name: '🙏', color: 'yellow' },

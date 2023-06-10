@@ -54,18 +54,19 @@
 <script lang="ts" setup>
 import Logo from '@/components/icons/Logo.vue'
 
+const router = useRouter()
+
+const store = useAuthStore()
+const { logIn } = store
+
+const loading = ref(false)
+
 const loginFormRef = useElFormRef()
 const loginModel = useElFormModel<IAuthWithEmailAndPasswordPayload>({ email: '', password: '' })
 const loginRules = useElFormRules({
   email: [useEmailRule(), useRequiredRule()],
   password: [useMinLenRule(6), useRequiredRule()]
 })
-
-const router = useRouter()
-
-const store = useAuthStore()
-const { logIn } = store
-const loading = ref(false)
 
 function submit (formRef) {
   formRef.validate(async (valid) => {

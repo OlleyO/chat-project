@@ -1,10 +1,11 @@
 import type { RouteRecordRaw } from 'vue-router'
 
-import { routeNames } from './route-names'
-
+import { adminRoutes } from '@/views/admin/admin.routes'
 import { authRoutes } from '@/views/auth/auth.routes'
 import { chatRoutes } from '@/views/chat/chat.routes'
 import { settingsRoutes } from '@/views/settings/settings.routes'
+
+import { routeNames } from './route-names'
 
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
@@ -25,6 +26,7 @@ const routes: Array<RouteRecordRaw> = [
     redirect: '/'
   },
 
+  adminRoutes,
   authRoutes,
   settingsRoutes,
   defaultLayoutRoutes

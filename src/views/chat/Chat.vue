@@ -56,13 +56,12 @@ const messagesRef = ref<InstanceType<typeof Message>[]>([])
 const authStore = useAuthStore()
 const chatStore = useChatStore()
 
-const messagesLoading = ref(false)
-const messagesBatchLoading = ref(false)
-
 const { currentUser } = storeToRefs(authStore)
 const { messages, lastReadMessage, chats, currentChat, chatsLoading } = storeToRefs(chatStore)
-
 const { loadMessageBatch, getChats } = chatStore
+
+const messagesLoading = ref(false)
+const messagesBatchLoading = ref(false)
 
 const showScrollToLastReadButton = computed(
   () => chats.value[route.params.id as string]?.unread_messages_count
@@ -231,9 +230,9 @@ async function subscribeToChatMessagesEvents (chatId: string) {
   })
 }
 
-watch(currentUser, async () => {
+onMounted(async () => {
   loadChatsAndRedirectToLastActive()
-}, { immediate: true })
+})
 
 watch(route, async (route) => {
   const chatId = route.params.id as string

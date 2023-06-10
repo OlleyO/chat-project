@@ -28,6 +28,13 @@
 <script lang="ts" setup>
 import { routeNames } from '@/router/route-names'
 
+const router = useRouter()
+
+const store = useAuthStore()
+const { resetPassword } = store
+
+const loading = ref(false)
+
 const resetPasswordRef = useElFormRef()
 const resetPasswordModel = useElFormModel<IResetPasswordPayload>({
   password: ''
@@ -35,12 +42,6 @@ const resetPasswordModel = useElFormModel<IResetPasswordPayload>({
 const resetPasswordRules = useElFormRules({
   password: [useMinLenRule(6), useRequiredRule()]
 })
-
-const router = useRouter()
-
-const store = useAuthStore()
-const { resetPassword } = store
-const loading = ref(false)
 
 function submit (formRef) {
   formRef.validate(async (valid) => {

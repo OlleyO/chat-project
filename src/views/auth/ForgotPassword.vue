@@ -23,6 +23,11 @@
 </template>
 
 <script lang="ts" setup>
+const store = useAuthStore()
+const { sendPasswordResetEmail } = store
+
+const loading = ref(false)
+
 const forgotPasswordRef = useElFormRef()
 const forgotPasswordModel = useElFormModel<IForgotPasswordPayload>({
   email: ''
@@ -30,10 +35,6 @@ const forgotPasswordModel = useElFormModel<IForgotPasswordPayload>({
 const forgotPasswordRules = useElFormRules({
   email: [useEmailRule(), useRequiredRule()]
 })
-
-const store = useAuthStore()
-const { sendPasswordResetEmail } = store
-const loading = ref(false)
 
 function submit (formRef) {
   formRef.validate(async (valid) => {

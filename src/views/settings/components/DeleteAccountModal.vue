@@ -8,10 +8,15 @@
     @close="$emit('update:modelValue', false)"
   >
     <span>Are you sure you want to delete your account?</span>
+
     <template #footer>
       <span class="flex gap-5 justify-end">
         <el-button @click="closeModal">Cancel</el-button>
-        <el-button :type="$elComponentType.danger" @click="deleteAccount">
+
+        <el-button
+          :type="$elComponentType.danger"
+          @click="deleteAccount"
+        >
           Confirm
         </el-button>
       </span>
@@ -22,16 +27,17 @@
 <script lang="ts" setup>
 import { routeNames } from '@/router/route-names'
 
-const authStore = useAuthStore()
-const { clearUser } = authStore
-const { currentUser } = storeToRefs(authStore)
-
 defineProps<{
   modelValue: boolean
 }>()
 
 const emit = defineEmits(['update:modelValue'])
+
 const router = useRouter()
+
+const authStore = useAuthStore()
+const { currentUser } = storeToRefs(authStore)
+const { clearUser } = authStore
 
 function closeModal () {
   emit('update:modelValue', false)

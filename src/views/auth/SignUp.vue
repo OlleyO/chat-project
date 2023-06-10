@@ -66,6 +66,13 @@
 <script lang="ts" setup>
 import { routeNames } from '@/router/route-names'
 
+const router = useRouter()
+
+const store = useAuthStore()
+const { register } = store
+
+const loading = ref(false)
+
 const registerFormRef = useElFormRef()
 const registerModel = useElFormModel<TAuthWithEmailAndPasswordPayload>({
   email: '',
@@ -80,12 +87,6 @@ const registerRules = useElFormRules({
   fullname: [useMinLenRule(5), useMaxLenRule(25), useRequiredRule()],
   username: [useMinLenRule(5), useMaxLenRule(25), useRequiredRule()]
 })
-
-const router = useRouter()
-
-const store = useAuthStore()
-const { register } = store
-const loading = ref(false)
 
 function submit (formRef) {
   formRef.validate(async (valid) => {

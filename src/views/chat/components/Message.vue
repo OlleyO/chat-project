@@ -44,6 +44,7 @@ const props = defineProps<{
   last: boolean
   lastRead: boolean
 }>()
+
 const messageRef = ref<HTMLDivElement | null>(null)
 const messageVisible = ref(false)
 
