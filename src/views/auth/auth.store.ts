@@ -4,8 +4,6 @@ export const useAuthStore = defineStore('authStore', () => {
   const currentUser = ref<User | null>(null)
   const onlineUsers = ref<IOnlineUsers>({})
 
-  const isAuthenticated = computed(() => !!currentUser.value)
-
   const router = useRouter()
 
   let channel: RealtimeChannel | null = null
@@ -89,7 +87,6 @@ export const useAuthStore = defineStore('authStore', () => {
   return {
     currentUser,
     onlineUsers,
-    isAuthenticated,
     logIn,
     register,
     loadUser,

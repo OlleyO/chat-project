@@ -7,9 +7,9 @@ export const routeGuard = async (
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) => {
-  const { isAuthenticated } = storeToRefs(useAuthStore())
+  const currentUser = await useSupabase().auth.getUser()
 
-  if (!to.meta.requireAuth || isAuthenticated.value) {
+  if (!to.meta.requireAuth || currentUser) {
     return next()
   } else {
     return next({ name: routeNames.login })
