@@ -6,7 +6,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
   const maxMessagesPerRequest = 20
 
-  const chats = ref<TChatData>([])
+  const chats = ref<TChatsTransformed>({})
   const messages = ref<IMessage[]>([])
   const currentChat = ref<TCurrentChat>()
 
@@ -30,7 +30,7 @@ export const useChatStore = defineStore('chatStore', () => {
     if (currentUser.value) {
       const fetchedChats = await chatService.getChatsViews(currentUser.value.id)
 
-      chats.value = [...fetchedChats]
+      chats.value = chatService.chatsArrayToObject(fetchedChats)
 
       return fetchedChats
     }

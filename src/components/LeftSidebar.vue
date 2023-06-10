@@ -24,7 +24,8 @@
         :key="chat.chat_id!"
         :open="chat.chat_id === $route.params.id"
         :chat="chat"
-        :online="!!onlineUsers[chat.user_id ?? '']"
+        :online="!!onlineUsers[chat.user_id]"
+        @click="onContactItemClicked(chat?.chat_id)"
       />
 
       <NoContent
@@ -52,30 +53,32 @@ defineProps<{
 
 const emit = defineEmits(['onClose', 'openCreateGroupForm'])
 
-const route = useRoute()
-
 const chatStore = useChatStore()
 const { chats, currentChat, chatsLoading } = storeToRefs(chatStore)
 const { findChat } = chatStore
 
 const userInput = ref('')
-const filteredChats = ref<TChatData>([])
+const filteredChats = ref<TChatsTransformed>({})
 
-const chatsToShow = computed(() =>
-  userInput.value.trim() ? filteredChats.value : chats.value)
+const chatsToShow = computed(() => {
+  const toShow = userInput.value.trim() ? filteredChats.value : chats.value
+  const array = Object.keys(toShow).map(key => toShow[key])
+  array.sort((ch1, ch2) => new Date(ch2.updated_at).getTime() - new Date(ch1.updated_at).getTime())
 
-watch(route, (route) => {
-  const chatId = route.params.id as string
-
-  if (chatId) {
-    currentChat.value = chatsToShow.value.find((ch) => ch.chat_id === chatId)
-  }
+  return array
 })
+
+function onContactItemClicked (chatId: string) {
+  currentChat.value = chatsToShow.value.find(ch => ch?.chat_id === chatId)
+  userInput.value = ''
+}
 
 const debouncedFindChat = useDebounceFn(async () => {
   try {
     chatsLoading.value = true
-    filteredChats.value = await findChat(userInput.value.trim()) ?? []
+    const fetchedChats = await findChat(userInput.value.trim()) ?? []
+
+    filteredChats.value = chatService.chatsArrayToObject(fetchedChats)
   } catch (err) {
     notificationHandler(err as TAppError)
   } finally {

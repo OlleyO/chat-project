@@ -164,6 +164,13 @@ class ChatService {
       handler(payload.old)
     }).subscribe()
   }
+
+  chatsArrayToObject (chats: TChatData) {
+    return chats.reduce((prev, curr) => ({
+      ...prev,
+      [curr.chat_id]: { ...curr }
+    }), {} as TChatsTransformed)
+  }
 }
 
 export const chatService = new ChatService()

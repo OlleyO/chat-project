@@ -9,7 +9,7 @@ export const routeGuard = async (
 ) => {
   const { isAuthenticated } = storeToRefs(useAuthStore())
 
-  if (!to.meta.requireAuth || isAuthenticated) {
+  if (!to.meta.requireAuth || isAuthenticated.value) {
     return next()
   } else {
     return next({ name: routeNames.login })

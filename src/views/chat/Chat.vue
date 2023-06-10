@@ -1,7 +1,8 @@
 <template>
   <div
     v-loading="messagesLoading"
-    class="flex flex-col justify-items-center items-center pt-2 pb-2 md:pb-5 overflow-hidden h-full"
+    class="relative flex flex-col justify-items-center items-center
+    pt-2 pb-2 md:pb-5 overflow-hidden h-full"
   >
     <div
       ref="messagesList"
@@ -60,10 +61,12 @@ const { currentUser } = storeToRefs(authStore)
 const { messages, lastReadMessage, chats, currentChat, chatsLoading } = storeToRefs(chatStore)
 
 const showScrollToLastReadButton = computed(
-  () => lastReadMessage.value && lastReadMessage.value.users.id !== currentUser.value?.id)
+  () => chats.value[route.params.id as string]?.unread_messages_count
+)
 
 async function scrollToLastRead () {
-  messagesRef.value.find(m => m.$props.lastRead)?.$el.scrollIntoView({
+  await nextTick()
+  messagesRef.value.find(m => m.$props.message.id === lastReadMessage.value.id)?.$el.scrollIntoView({
     behavior: 'smooth',
     block: 'end',
     inline: 'nearest'
@@ -115,13 +118,30 @@ watch(currentUser, async () => {
 }, { immediate: true })
 
 function markAsRead (message: IDatabase['public']['Tables']['messages']['Row']) {
-  const chatIndex = chats.value.findIndex(chat => chat.chat_id === message.chat_id)
+  const chat = chats.value[message.chat_id]
 
-  if (chatIndex !== -1) {
-    const copy = { ...chats.value[chatIndex] }
-    copy.unread_messages_count = copy.unread_messages_count ? copy.unread_messages_count - 1 : 0
+  const msgIndex = messages.value.findIndex(msg => msg.id === message.id)
 
-    chats.value = [...chats.value.slice(0, chatIndex), copy, ...chats.value.slice(chatIndex + 1)]
+  if (msgIndex !== -1) {
+    const msg = { ...messages.value[msgIndex] }
+
+    const messagesCopy = [...messages.value]
+    messagesCopy[msgIndex] = {
+      ...msg,
+      read: true
+    }
+
+    messages.value = messagesCopy
+  }
+
+  if (chat) {
+    const ch = { ...chat }
+    ch.unread_messages_count = ch.unread_messages_count ? ch.unread_messages_count - 1 : 0
+
+    chats.value = {
+      ...chats.value,
+      [ch.chat_id]: ch
+    }
   }
 }
 
@@ -130,10 +150,10 @@ function addMessage (newMessage: IMessage, chatId: string) {
     messages.value = [...messages.value, { ...newMessage, read: false }]
   }
 
-  const chatIndex = chats.value.findIndex((ch) => ch.chat_id === newMessage.chat_id)
+  const chat = chats.value[newMessage.chat_id]
 
-  if (chatIndex !== -1) {
-    const ch = { ...chats.value[chatIndex] }
+  if (chat) {
+    const ch = { ...chat }
     ch.message = newMessage.message
     ch.message_created_at = newMessage.created_at
     ch.message_id = newMessage.id
@@ -144,10 +164,7 @@ function addMessage (newMessage: IMessage, chatId: string) {
         : 1
     }
 
-    const copy = [...chats.value]
-
-    copy.splice(chatIndex, 1)
-    chats.value = [ch, ...copy]
+    chats.value = { ...chats.value, [ch.chat_id]: ch }
   }
 }
 
@@ -156,10 +173,14 @@ async function addNewChat (chat: IDatabase['public']['Tables']['chats']['Row']) 
     const fetchedChats = await chatService.getChatsViews(currentUser.value?.id, chat.id)
 
     if (fetchedChats.length) {
-      chats.value = [{
-        ...fetchedChats[0],
-        unread_messages_count: 0
-      }, ...chats.value]
+      chats.value = {
+        ...chats.value,
+        [fetchedChats[0].chat_id]: {
+          ...fetchedChats[0],
+          unread_messages_count: 0
+
+        }
+      }
     }
   }
 }
@@ -172,7 +193,9 @@ function clearConversation (chat: any) {
     router.replace({ name: routeNames.chat })
   }
 
-  chats.value = chats.value.filter((ch) => ch.chat_id !== chat.id)
+  const copy = { ...chats.value }
+  delete copy[chat.id]
+  chats.value = { ...copy }
 }
 
 async function initialLoadMessages (chatId: string) {

@@ -112,7 +112,7 @@ const changesApplied = computed(() => {
         }
 
         return profileModel[key] !== currentUser.value?.user_metadata[key]
-      })
+      }) || currentUser.value.email !== profileModel.email
   }
 })
 
