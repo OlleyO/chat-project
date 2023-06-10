@@ -61,11 +61,11 @@ const userInput = ref('')
 const filteredChats = ref<TChatsTransformed>({})
 
 const chatsToShow = computed(() => {
-  const toShow = userInput.value.trim() ? filteredChats.value : chats.value
-  const array = Object.keys(toShow).map(key => toShow[key])
-  array.sort((ch1, ch2) => new Date(ch2.updated_at).getTime() - new Date(ch1.updated_at).getTime())
+  const _chats = userInput.value.trim() ? filteredChats.value : chats.value
+  const chatsArray = Object.keys(_chats).map(key => _chats[key])
+  chatsArray.sort((ch1, ch2) => new Date(ch2.updated_at).getTime() - new Date(ch1.updated_at).getTime())
 
-  return array
+  return chatsArray
 })
 
 function onContactItemClicked (chatId: string) {
@@ -89,6 +89,8 @@ const debouncedFindChat = useDebounceFn(async () => {
 watch(userInput, async (input) => {
   if (input.trim()) {
     debouncedFindChat()
+  } else {
+    filteredChats.value = {}
   }
 })
 </script>

@@ -48,7 +48,9 @@ import Message from './components/Message.vue'
 import MessageForm from './components/MessageForm.vue'
 
 const route = useRoute()
+const router = useRouter()
 
+const messagesList = ref<HTMLDivElement | null>(null)
 const messagesRef = ref<InstanceType<typeof Message>[]>([])
 
 const authStore = useAuthStore()
@@ -59,6 +61,8 @@ const messagesBatchLoading = ref(false)
 
 const { currentUser } = storeToRefs(authStore)
 const { messages, lastReadMessage, chats, currentChat, chatsLoading } = storeToRefs(chatStore)
+
+const { loadMessageBatch, getChats } = chatStore
 
 const showScrollToLastReadButton = computed(
   () => chats.value[route.params.id as string]?.unread_messages_count
@@ -72,12 +76,6 @@ async function scrollToLastRead () {
     inline: 'nearest'
   })
 }
-
-const { loadMessageBatch, getChats } = chatStore
-
-const router = useRouter()
-
-const messagesList = ref<HTMLDivElement | null>(null)
 
 useInfiniteScroll(messagesList, async () => {
   const chatId = route.params.id as string
@@ -112,10 +110,6 @@ async function loadChatsAndRedirectToLastActive () {
     chatsLoading.value = false
   }
 }
-
-watch(currentUser, async () => {
-  loadChatsAndRedirectToLastActive()
-}, { immediate: true })
 
 function markAsRead (message: IDatabase['public']['Tables']['messages']['Row']) {
   const chat = chats.value[message.chat_id]
@@ -157,6 +151,7 @@ function addMessage (newMessage: IMessage, chatId: string) {
     ch.message = newMessage.message
     ch.message_created_at = newMessage.created_at
     ch.message_id = newMessage.id
+    ch.updated_at = newMessage.created_at
 
     if (currentUser.value?.id !== newMessage.users.id) {
       ch.unread_messages_count = ch.unread_messages_count
@@ -168,7 +163,7 @@ function addMessage (newMessage: IMessage, chatId: string) {
   }
 }
 
-async function addNewChat (chat: IDatabase['public']['Tables']['chats']['Row']) {
+async function addChat (chat: IDatabase['public']['Tables']['chats']['Row']) {
   if (currentUser.value) {
     const fetchedChats = await chatService.getChatsViews(currentUser.value?.id, chat.id)
 
@@ -220,7 +215,7 @@ async function subscribeToChatMessagesEvents (chatId: string) {
 
   chatService.onNewMessage(async (newMessage) => {
     if (newChat) {
-      await addNewChat(newChat)
+      await addChat(newChat)
       newChat = null
     }
 
@@ -235,6 +230,10 @@ async function subscribeToChatMessagesEvents (chatId: string) {
     clearConversation(chat)
   })
 }
+
+watch(currentUser, async () => {
+  loadChatsAndRedirectToLastActive()
+}, { immediate: true })
 
 watch(route, async (route) => {
   const chatId = route.params.id as string

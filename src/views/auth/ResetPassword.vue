@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-import { routeNames } from '@/router/route-names';
+import { routeNames } from '@/router/route-names'
 
 const resetPasswordRef = useElFormRef()
 const resetPasswordModel = useElFormModel<IResetPasswordPayload>({
