@@ -20,7 +20,7 @@
         :lastRead="message.id === lastReadMessage?.id"
       />
       <NoContent
-        v-if="!messages.length && !messagesLoading"
+        v-if="showNoMessages"
         class="self-center my-auto" message="Start Conversation"
       />
     </div>
@@ -72,6 +72,8 @@ const showScrollToLastReadButton = computed(
   () => chats.value[route.params.id as string]?.unread_messages_count
 )
 const showBadgeCountAsDot = computed(() => chats.value[route.params.id as string].unread_messages_count === 1)
+
+const showNoMessages = computed(() => !messages.value.length && !messagesLoading.value)
 
 async function scrollToLastRead () {
   await nextTick()

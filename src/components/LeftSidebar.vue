@@ -29,7 +29,7 @@
       />
 
       <NoContent
-        v-if="!chatsToShow.length"
+        v-if="showNoChats"
         class="text-center mt-5" message="No Chats Found"
       />
     </div>
@@ -67,6 +67,8 @@ const chatsToShow = computed(() => {
 
   return chatsArray
 })
+
+const showNoChats = computed(() => !chatsToShow.value.length)
 
 function onContactItemClicked (chatId: string) {
   currentChat.value = chatsToShow.value.find(ch => ch?.chat_id === chatId)
