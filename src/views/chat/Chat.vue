@@ -27,9 +27,14 @@
 
     <el-button
       v-if="showScrollToLastReadButton"
-      class="absolute bottom-40 right-5" @click="scrollToLastRead"
+      class="absolute bottom-40 right-5"
+      @click="scrollToLastRead"
     >
-      Scroll to last
+      <span class="mr-2">Unread</span>
+
+      <Badge :dot="showBadgeCountAsDot">
+        {{ chats[$route.params.id as string].unread_messages_count }}
+      </Badge>
     </el-button>
 
     <div class="md:min-w-[320px] w-full pt-2 px-5 flex-shrink-0 pb-5">
@@ -66,6 +71,7 @@ const messagesBatchLoading = ref(false)
 const showScrollToLastReadButton = computed(
   () => chats.value[route.params.id as string]?.unread_messages_count
 )
+const showBadgeCountAsDot = computed(() => chats.value[route.params.id as string].unread_messages_count === 1)
 
 async function scrollToLastRead () {
   await nextTick()
@@ -206,6 +212,7 @@ async function initialLoadMessages (chatId: string) {
 }
 
 async function subscribeToChatMessagesEvents (chatId: string) {
+  // to track what users chat shoud be added to
   let newChat: IDatabase['public']['Tables']['chats']['Row'] | null = null
 
   await chatService.onNewChat(async (chat) => {
@@ -237,6 +244,7 @@ onMounted(async () => {
 watch(route, async (route) => {
   const chatId = route.params.id as string
 
+  // reset messages on 'other chat' selected
   messages.value = []
 
   if (chatId) {
