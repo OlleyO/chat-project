@@ -11,11 +11,21 @@ export const routeGuard = async (
   const { currentUser } = storeToRefs(authStore)
   const { loadUser } = authStore
 
-  await loadUser()
+  try {
+    if (to.meta.requireAuth) {
+      await loadUser()
 
-  if (!to.meta.requireAuth || currentUser.value) {
-    return next()
-  } else {
+      if (currentUser.value) {
+        return next()
+      }
+
+      return next({ name: routeNames.login })
+    } else {
+      return next()
+    }
+  } catch (err) {
+    notificationHandler('Session expired')
+
     return next({ name: routeNames.login })
   }
 }

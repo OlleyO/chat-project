@@ -71,6 +71,7 @@ const chatsToShow = computed(() => {
 function onContactItemClicked (chatId: string) {
   currentChat.value = chatsToShow.value.find(ch => ch?.chat_id === chatId)
   userInput.value = ''
+  emit('onClose')
 }
 
 const debouncedFindChat = useDebounceFn(async () => {
