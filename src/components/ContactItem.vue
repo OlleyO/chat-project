@@ -46,7 +46,7 @@
 
 <script lang="ts" setup>
 defineProps<{
-  chat: IDatabase['public']['Views']['chat_view']['Row']
+  chat: TChatItem
   open: boolean
   online: boolean
 }>()

@@ -18,6 +18,7 @@
             :src="currentChat?.avatar_url"
             :fullname="currentChat?.fullname"
           />
+
           <span class="text-base font-semibold text-primary">{{ currentChat?.fullname }}</span>
         </div>
 
@@ -40,6 +41,7 @@
 
       <div class="flex flex-col gap-2">
         <span class="font-semibold text-sm">Bio</span>
+
         <span class="text-sm">{{ currentChat?.bio }}</span>
       </div>
     </div>

@@ -7,6 +7,7 @@
 
     <div class="flex gap-20 items-center">
       <AppLogo class="hidden md:flex items-center" />
+
       <p class="font-semibold text-sm text-primary">
         {{ currentChat?.fullname }}
       </p>
