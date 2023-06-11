@@ -6,6 +6,7 @@ export {}
 declare global {
   const EffectScope: typeof import('vue')['EffectScope']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
+  const adminService: typeof import('../src/views/admin/admin.service')['adminService']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
   const authService: typeof import('../src/views/auth/auth.service')['authService']
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']

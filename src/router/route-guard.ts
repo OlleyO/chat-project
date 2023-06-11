@@ -15,8 +15,14 @@ export const routeGuard = async (
     if (to.meta.requireAuth) {
       await loadUser()
 
-      if (currentUser.value) {
-        return next()
+      if (currentUser.value?.user_metadata.is_admin) {
+        if (to.meta.requireAdmin) {
+          return next()
+        }
+      } else {
+        if (currentUser.value) {
+          return next()
+        }
       }
 
       return next({ name: routeNames.login })

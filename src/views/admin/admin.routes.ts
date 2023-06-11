@@ -1,24 +1,15 @@
 import type { RouteRecordRaw } from 'vue-router'
 
-import BlankLayout from '@/layouts/BlankLayout.vue'
-
 export const adminRouteNames = {
-  admin: 'admin',
-  users: 'users'
+  admin: 'admin'
 }
 
 export const adminRoutes: RouteRecordRaw = {
   name: adminRouteNames.admin,
   path: '/admin',
-  component: BlankLayout,
-  children: [
-    {
-      path: 'users',
-      name: adminRouteNames.users,
-      component: () => import('./Admin.vue')
-    }
-  ],
+  component: () => import('./Admin.vue'),
   meta: {
+    requireAuth: true,
     requireAdmin: true
   }
 }

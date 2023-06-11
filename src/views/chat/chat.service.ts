@@ -1,14 +1,4 @@
 class ChatService {
-  async getUsers () {
-    const { data, error } = await useSupabase().from('users').select()
-
-    if (error) {
-      throw error
-    }
-
-    return data
-  }
-
   async getChatsViews (userId: string, chatId?: string) {
     let query = useSupabase().rpc('get_chats', {
       current_user_id: userId
@@ -170,6 +160,14 @@ class ChatService {
       ...prev,
       [curr.chat_id]: { ...curr }
     }), {} as TChatsTransformed)
+  }
+
+  async sendReport (report: any) {
+    const { error } = await useSupabase().from('reports').insert(report)
+
+    if (error) {
+      throw error
+    }
   }
 }
 

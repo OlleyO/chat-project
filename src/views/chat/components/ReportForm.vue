@@ -3,7 +3,7 @@
     v-loading="loading"
     class="min-w-[300px] md:ml-[350px]"
     :modelValue="modelValue"
-    title="Create Group"
+    title="Send report"
     append-to-body
     @open="$emit('update:modelValue', true)"
     @close="$emit('update:modelValue', false)"
@@ -14,12 +14,8 @@
       :model="formModel"
       :rules="formRules"
     >
-      <el-form-item label="Group name" prop="name">
-        <el-input v-model="formModel.name" />
-      </el-form-item>
-
-      <el-form-item label="Description" prop="description">
-        <el-input v-model="formModel.description" />
+      <el-form-item label="Reason" prop="reason">
+        <el-input v-model="formModel.reason" />
       </el-form-item>
     </el-form>
 
@@ -38,7 +34,7 @@
 <script lang="ts" setup>
 const props = defineProps<{
   modelValue: boolean
-  creatorId?: string
+  chat?: TCurrentChat
 }>()
 
 const emit = defineEmits(['update:modelValue'])
@@ -47,9 +43,7 @@ const loading = ref(false)
 
 const formRef = useElFormRef()
 const formModel = useElFormModel({
-  name: '',
-  description: '',
-  type: 'group'
+  reason: ''
 })
 const formRules = useElFormRules({
   name: [useMinLenRule(3), useRequiredRule(), useMaxLenRule(25)],
@@ -60,10 +54,10 @@ function closeForm () {
   emit('update:modelValue', false)
 }
 
-async function createChat () {
-  await chatService.createNewGroup({
+async function sendReport () {
+  await chatService.sendReport({
     ...formModel,
-    admin_id: props.creatorId
+    user_id: props.chat?.user_id
   })
 }
 
@@ -72,8 +66,8 @@ function submit (formRef) {
     if (valid) {
       try {
         loading.value = true
-        await createChat()
-        notificationHandler('Chat created', {
+        await sendReport()
+        notificationHandler('Report send. Your submission is processing', {
           type: 'success'
         })
       } catch (err) {

@@ -36,9 +36,9 @@
 
     <el-button
       class="mx-5"
-      @click="$emit('openCreateGroupForm')"
+      @click="$emit('openCreateReportForm')"
     >
-      Create Group
+      Send Report
     </el-button>
   </aside>
 </template>
@@ -51,7 +51,7 @@ defineProps<{
   onlineUsers: IOnlineUsers
 }>()
 
-const emit = defineEmits(['onClose', 'openCreateGroupForm'])
+const emit = defineEmits(['onClose', 'openCreateReportForm'])
 
 const chatStore = useChatStore()
 const { chats, currentChat, chatsLoading } = storeToRefs(chatStore)

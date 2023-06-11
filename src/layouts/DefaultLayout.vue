@@ -4,7 +4,7 @@
       :onlineUsers="onlineUsers"
       :open="leftSidebarOpen"
       @onClose="leftSidebarOpen=false"
-      @openCreateGroupForm="createGroupFormVisible = true"
+      @openCreateReportForm="createReportFormVisible = true"
     />
 
     <Header
@@ -23,9 +23,9 @@
       <router-view />
     </div>
 
-    <ChatForm
-      v-model="createGroupFormVisible"
-      :creatorId="currentUser?.id"
+    <ReportForm
+      v-model="createReportFormVisible"
+      :chat="currentChat"
     />
   </div>
 </template>
@@ -33,7 +33,7 @@
 <script lang="ts" setup>
 const leftSidebarOpen = ref(false)
 const rightDrawer = ref(false)
-const createGroupFormVisible = ref(false)
+const createReportFormVisible = ref(false)
 
 const chatStore = useChatStore()
 

@@ -9,6 +9,7 @@
     "Ref": true,
     "VNode": true,
     "acceptHMRUpdate": true,
+    "adminService": true,
     "asyncComputed": true,
     "authService": true,
     "autoResetRef": true,
