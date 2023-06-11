@@ -7,7 +7,10 @@
       ref="webcamRef" :resolution="{
         width: 640,
         height: 480
-      }" :autoplay="false" facingMode="user" @started="onCameraStarted"
+      }"
+      :autoplay="false"
+      facingMode="user"
+      @started="onCameraStarted"
       @stopped="onCameraStopped"
     >
       <div class="flex gap-5 h-full justify-center items-end z-[999] p-5 relative">
@@ -38,7 +41,9 @@
       ref="messageInputRef"
       class="flex-1 m-0" prop="message"
     >
-      <el-input v-model="sendMessageModel.message" class="message-input" placeholder="Write a message" />
+      <el-input
+        v-model="sendMessageModel.message" class="message-input" placeholder="Write a message"
+      />
     </el-form-item>
 
     <div
@@ -50,10 +55,19 @@
         :disabled="!isValid"
         @click="submitMessage(sendMessageFormRef, messageInputRef)"
       >
-        Send
+        {{ submitButtonText }}
       </el-button>
 
-      <el-button v-if="!cameraActive" @click="toggleCamera">SLD</el-button>
+      <div class="flex gap-2">
+        <el-button
+          v-if="editMode"
+          @click="cancelEdit"
+        >
+          Cancel
+        </el-button>
+
+        <el-button v-if="!cameraActive" @click="toggleCamera">SLD</el-button>
+      </div>
     </div>
   </el-form>
 </template>
@@ -64,6 +78,11 @@ import Camera from 'simple-vue-camera'
 import type { PostgrestError } from '@supabase/supabase-js'
 
 const modelUrl = 'https://tensorflowjsrealtimemodel.s3.au-syd.cloud-object-storage.appdomain.cloud/model.json'
+
+const props = defineProps<{
+  chatId: string
+  senderId: string
+}>()
 
 const {
   webcamRef,
@@ -76,15 +95,13 @@ const {
   onCameraStopped
 } = useCameraSignRecognition(modelUrl)
 
-const props = defineProps<{
-  chatId: string
-  senderId: string
-}>()
-
 const chatStore = useChatStore()
-const { currentChat, messages } = storeToRefs(chatStore)
+const { currentChat, messages, messageToEdit } = storeToRefs(chatStore)
 
 const messageInputRef = ref(null)
+
+const editMode = computed(() => !!messageToEdit.value)
+const submitButtonText = computed(() => editMode.value ? 'Edit' : 'Send')
 
 const sendMessageFormRef = useElFormRef()
 const sendMessageModel = useElFormModel({
@@ -94,6 +111,10 @@ const sendMessageModel = useElFormModel({
 const isValid = computed(() =>
   !!sendMessageModel.message.trim().length
 )
+
+function cancelEdit () {
+  messageToEdit.value = null
+}
 
 async function sendMessage () {
   await chatService.createNewMessage({
@@ -111,17 +132,37 @@ async function createChat () {
   }
 }
 
+async function editMessage () {
+  if (messageToEdit.value) {
+    await chatService.editMessage({
+      ...messageToEdit.value,
+      message: sendMessageModel.message
+    })
+
+    cancelEdit()
+  }
+}
+
 async function submitMessage (formRef, inputRef) {
   if (isValid.value) {
     try {
-      await createChat()
-      await sendMessage()
+      if (editMode.value) {
+        await editMessage()
+      } else {
+        await createChat()
+        await sendMessage()
+      }
+
       inputRef.resetField()
     } catch (err) {
       notificationHandler(errors.message[(err as PostgrestError).code] || (err as TAppError))
     }
   }
 }
+
+watch(messageToEdit, (message) => {
+  sendMessageModel.message = message?.message ?? ''
+})
 </script>
 
 <style lang="scss">

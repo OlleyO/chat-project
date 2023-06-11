@@ -9,6 +9,7 @@ export const useChatStore = defineStore('chatStore', () => {
   const chats = ref<TChatsTransformed>({})
   const messages = ref<IMessage[]>([])
   const currentChat = ref<TCurrentChat>()
+  const messageToEdit = ref<IMessage | null>(null)
 
   const chatsLoading = ref(false)
 
@@ -56,6 +57,7 @@ export const useChatStore = defineStore('chatStore', () => {
     chats,
     messages,
     currentChat,
+    messageToEdit,
     chatsLoading,
     lastReadMessage,
     loadMessageBatch,

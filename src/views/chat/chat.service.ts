@@ -60,9 +60,35 @@ class ChatService {
     return data
   }
 
+  async deleteMessage (messageId: string) {
+    const { data, error } = await useSupabase().from('messages').delete().eq('id', messageId)
+
+    if (error) {
+      throw error
+    }
+
+    return data
+  }
+
+  async editMessage (message: IMessage) {
+    const { error } = await useSupabase().from('messages').update({
+      message: message.message
+    }).eq('id', message.id)
+
+    if (error) {
+      throw error
+    }
+  }
+
   onUpdateMessage (handler: (...args: any[]) => void) {
     useSupabase().channel(supabaseChannels.dbMessagesUpdate).on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, payload => {
-      handler(payload.new)
+      handler(payload)
+    }).subscribe()
+  }
+
+  onDeleteMessage (handler: (...args: any[]) => void) {
+    useSupabase().channel(supabaseChannels.dbMessagesDelete).on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, payload => {
+      handler(payload.old)
     }).subscribe()
   }
 
@@ -107,23 +133,6 @@ class ChatService {
       chat_id: chatId,
       user_id: creatorId
     }])
-
-    if (error2) {
-      throw error2
-    }
-  }
-
-  async createNewGroup (payload: any) {
-    const { data, error: error1 } = await useSupabase().from('chats').insert(payload).select()
-
-    if (error1) {
-      throw error1
-    }
-
-    const { error: error2 } = await useSupabase().from('chat_to_user').insert({
-      chat_id: data[0].id,
-      user_id: payload.admin_id
-    })
 
     if (error2) {
       throw error2

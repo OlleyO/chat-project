@@ -76,8 +76,8 @@ const showBadgeCountAsDot = computed(() => chats.value[route.params.id as string
 const showNoMessages = computed(() => !messages.value.length && !messagesLoading.value)
 
 async function scrollToLastRead () {
-  await nextTick()
-  messagesRef.value.find(m => m.$props.message.id === lastReadMessage.value.id)?.$el.scrollIntoView({
+  // await nextTick()
+  messagesRef.value.find(m => m.$props.message.id === lastReadMessage.value.id)?.$el.nextElementSibling.scrollIntoView({
     behavior: 'smooth',
     block: 'end',
     inline: 'nearest'
@@ -170,6 +170,24 @@ function addMessage (newMessage: IMessage, chatId: string) {
   }
 }
 
+function deleteMessage (message: any) {
+  messages.value = messages.value.filter(msg => msg.id !== message.id)
+}
+
+function editMessage (message: any) {
+  const msgIndex = messages.value.findIndex(msg => msg.id === message.id)
+
+  if (msgIndex !== -1) {
+    const messagesCopy = [...messages.value]
+    messagesCopy[msgIndex] = {
+      ...messagesCopy[msgIndex],
+      message: message.message
+    }
+
+    messages.value = messagesCopy
+  }
+}
+
 async function addChat (chat: IDatabase['public']['Tables']['chats']['Row']) {
   if (currentUser.value) {
     const fetchedChats = await chatService.getChatsViews(currentUser.value?.id, chat.id)
@@ -230,8 +248,24 @@ async function subscribeToChatMessagesEvents (chatId: string) {
     addMessage(newMessage, chatId)
   })
 
-  chatService.onUpdateMessage((updatedMessage) => {
-    markAsRead(updatedMessage)
+  chatService.onDeleteMessage((message) => {
+    // listen to this events only if chat is open
+    if (message.chat_id === chatId) {
+      deleteMessage(message)
+    }
+  })
+
+  chatService.onUpdateMessage((payload) => {
+    const updatedMessage = payload.new
+
+    // listen to this events only if chat is open
+    if (updatedMessage.chat_id === payload.new.chat_id) {
+      if (payload.old.read === updatedMessage.read) {
+        editMessage(updatedMessage)
+      } else {
+        markAsRead(updatedMessage)
+      }
+    }
   })
 
   chatService.onDeleteChat((chat) => {
