@@ -9,7 +9,6 @@ export const adminRoutes: RouteRecordRaw = {
   path: '/admin',
   component: () => import('./Admin.vue'),
   meta: {
-    requireAuth: true,
     requireAdmin: true
   }
 }

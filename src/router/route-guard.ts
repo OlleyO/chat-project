@@ -12,15 +12,13 @@ export const routeGuard = async (
   const { loadUser } = authStore
 
   try {
-    if (to.meta.requireAuth) {
+    if (to.meta.requireAuth || to.meta.requireAdmin) {
       await loadUser()
 
-      if (currentUser.value?.user_metadata.is_admin) {
-        if (to.meta.requireAdmin) {
-          return next()
-        }
+      if (to.meta.requireAdmin && currentUser.value?.user_metadata.is_admin) {
+        return next()
       } else {
-        if (currentUser.value) {
+        if (currentUser.value && !to.meta.requireAdmin) {
           return next()
         }
       }
