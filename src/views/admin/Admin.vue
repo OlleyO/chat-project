@@ -17,11 +17,13 @@
 </template>
 
 <script lang="ts" setup>
+const adminStore = useAdminStore()
+const { reports } = storeToRefs(adminStore)
+const { getReports } = adminStore
+
 const activeTab = ref('reports')
 
-const reports = ref([])
-
-onMounted(async () => {
-  reports.value = await adminService.getReports()
+onBeforeMount(async () => {
+  getReports()
 })
 </script>

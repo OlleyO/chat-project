@@ -124,6 +124,7 @@
     "unrefElement": true,
     "until": true,
     "useActiveElement": true,
+    "useAdminStore": true,
     "useArrayEvery": true,
     "useArrayFilter": true,
     "useArrayFind": true,

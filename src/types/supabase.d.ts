@@ -1,4 +1,4 @@
-type TJson =
+export type TJson =
   | string
   | number
   | boolean
@@ -6,7 +6,7 @@ type TJson =
   | { [key: string]: TJson }
   | TJson[]
 
-interface IDatabase {
+export interface IDatabase {
   public: {
     Tables: {
       chat_to_user: {
@@ -25,6 +25,32 @@ interface IDatabase {
           created_at?: string
           user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'chat_to_user_chat_id_fkey'
+            columns: ['chat_id']
+            referencedRelation: 'chats'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'chat_to_user_chat_id_fkey'
+            columns: ['chat_id']
+            referencedRelation: 'chats_view'
+            referencedColumns: ['chat_id']
+          },
+          {
+            foreignKeyName: 'chat_to_user_user_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'chat_to_user_user_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'chats_view'
+            referencedColumns: ['user_id']
+          }
+        ]
       }
       chats: {
         Row: {
@@ -54,6 +80,20 @@ interface IDatabase {
           type?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'chats_admin_id_fkey'
+            columns: ['admin_id']
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'chats_admin_id_fkey'
+            columns: ['admin_id']
+            referencedRelation: 'chats_view'
+            referencedColumns: ['user_id']
+          }
+        ]
       }
       messages: {
         Row: {
@@ -80,6 +120,66 @@ interface IDatabase {
           read?: boolean
           sender_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'messages_chat_id_fkey'
+            columns: ['chat_id']
+            referencedRelation: 'chats'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'messages_chat_id_fkey'
+            columns: ['chat_id']
+            referencedRelation: 'chats_view'
+            referencedColumns: ['chat_id']
+          },
+          {
+            foreignKeyName: 'messages_sender_id_fkey'
+            columns: ['sender_id']
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'messages_sender_id_fkey'
+            columns: ['sender_id']
+            referencedRelation: 'chats_view'
+            referencedColumns: ['user_id']
+          }
+        ]
+      }
+      reports: {
+        Row: {
+          created_at: string | null
+          id: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          reason?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'reports_user_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_user_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'chats_view'
+            referencedColumns: ['user_id']
+          }
+        ]
       }
       users: {
         Row: {
@@ -106,28 +206,17 @@ interface IDatabase {
           tagname?: string
           username?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'users_id_fkey'
+            columns: ['id']
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          }
+        ]
       }
     }
     Views: {
-      chat_view: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          chat_created_at: string | null
-          chat_id: string | null
-          description: string | null
-          fullname: string | null
-          message: string | null
-          message_created_at: string | null
-          message_id: string | null
-          tagname: string | null
-          type: string | null
-          unread_messages_count: number | null
-          updated_at: string | null
-          user_id: string | null
-          username: string | null
-        }
-      }
       chats_view: {
         Row: {
           avatar_url: string | null
@@ -146,9 +235,23 @@ interface IDatabase {
           user_id: string | null
           username: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: 'users_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          }
+        ]
       }
     }
     Functions: {
+      delete_user: {
+        Args: {
+          user_id: string
+        }
+        Returns: undefined
+      }
       get_chats: {
         Args: {
           current_user_id: string
@@ -169,6 +272,8 @@ interface IDatabase {
           username: string
           avatar_url: string
           unread_messages_count: number
+          admin_id: string
+          name: string
         }[]
       }
       get_chats_new: {
@@ -191,6 +296,8 @@ interface IDatabase {
           username: string
           avatar_url: string
           unread_messages_count: number
+          admin_id: string
+          name: string
         }[]
       }
       helper: {
@@ -213,13 +320,15 @@ interface IDatabase {
           username: string
           avatar_url: string
           unread_messages_count: number
+          admin_id: string
+          name: string
         }[]
       }
       helper_chat_getter: {
         Args: {
           current_user_id: string
         }
-        Returns: Database['public']['CompositeTypes']['temp_type'][]
+        Returns: Database['public']['CompositeTypes']['tmp_type'][]
       }
       helper_new: {
         Args: {
@@ -241,13 +350,15 @@ interface IDatabase {
           username: string
           avatar_url: string
           unread_messages_count: number
+          admin_id: string
+          name: string
         }[]
       }
       helper_new_new: {
         Args: {
           current_user_id: string
         }
-        Returns: Database['public']['CompositeTypes']['temp_type'][]
+        Returns: Database['public']['CompositeTypes']['tmp_type'][]
       }
       username_fullname_tagname:
       | {
@@ -306,6 +417,8 @@ interface IDatabase {
           username: string
           avatar_url: string
           unread_messages_count: number
+          admin_id: string
+          name: string
         }[]
       }
     }
@@ -329,6 +442,25 @@ interface IDatabase {
         username: string
         avatar_url: string
         unread_messages_count: number
+      }
+      tmp_type: {
+        chat_id: string
+        chat_created_at: string
+        type: string
+        description: string
+        updated_at: string
+        message_id: string
+        message_created_at: string
+        message: string
+        user_id: string
+        bio: string
+        fullname: string
+        tagname: string
+        username: string
+        avatar_url: string
+        unread_messages_count: number
+        admin_id: string
+        name: string
       }
     }
   }
