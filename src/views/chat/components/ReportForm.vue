@@ -37,7 +37,7 @@ const props = defineProps<{
   chat?: TCurrentChat
 }>()
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'afterSubmit'])
 
 const loading = ref(false)
 
@@ -46,8 +46,7 @@ const formModel = useElFormModel({
   reason: ''
 })
 const formRules = useElFormRules({
-  name: [useMinLenRule(3), useRequiredRule(), useMaxLenRule(25)],
-  description: [useMaxLenRule(25)]
+  reason: [useMaxLenRule(25), useRequiredRule()]
 })
 
 function closeForm () {
@@ -59,6 +58,8 @@ async function sendReport () {
     ...formModel,
     user_id: props.chat?.user_id
   })
+
+  emit('afterSubmit')
 }
 
 function submit (formRef) {
@@ -70,6 +71,8 @@ function submit (formRef) {
         notificationHandler('Report send. Your submission is processing', {
           type: 'success'
         })
+
+        formRef.resetFields()
       } catch (err) {
         notificationHandler(err as TAppError)
       } finally {

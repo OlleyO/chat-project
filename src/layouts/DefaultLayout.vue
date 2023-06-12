@@ -27,6 +27,7 @@
     <ReportForm
       v-model="createReportFormVisible"
       :chat="chatToReport"
+      @afterSubmit="resetReportData"
     />
   </div>
 </template>
@@ -55,5 +56,9 @@ async function handleDeleteChat () {
 function onReportChat (chat: TCurrentChat) {
   createReportFormVisible.value = true
   chatToReport.value = chat
+}
+
+function resetReportData () {
+  chatToReport.value = null
 }
 </script>

@@ -95,5 +95,4 @@ const drawer = ref(null)
 onClickOutside(drawer, () => {
   emit('update:modelValue', false)
 })
-
 </script>
