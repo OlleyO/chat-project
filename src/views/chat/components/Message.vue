@@ -1,5 +1,6 @@
 <template>
   <el-popover
+    ref="popover"
     :visible="popoverOpen"
     trigger="contextmenu"
     placement="left"
@@ -79,7 +80,9 @@ const props = defineProps<{
 const chatStore = useChatStore()
 const { messageToEdit } = storeToRefs(chatStore)
 
+const popover = ref(null)
 const messageRef = ref<HTMLDivElement | null>(null)
+
 const messageVisible = ref(false)
 const popoverOpen = ref(false)
 
@@ -92,6 +95,10 @@ const { stop } = useIntersectionObserver(
     messageVisible.value = isIntersecting
   }
 )
+
+onClickOutside(popover, () => {
+  popoverOpen.value = false
+})
 
 watch(messageVisible, async (visible) => {
   if (read.value) {
