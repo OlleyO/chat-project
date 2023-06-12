@@ -75,7 +75,7 @@ function submit (formRef) {
         loading.value = true
         await logIn(loginModel)
 
-        notificationHandler('Success', { duration: 2000, type: 'success' })
+        notificationHandler('Logged In', { duration: 2000, type: 'success' })
 
         router.push({ name: 'chat' })
       } catch (err) {

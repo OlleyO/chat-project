@@ -36,13 +36,17 @@
     :model="sendMessageModel"
     class="md:border border-border-primary rounded-xl flex md:flex-col w-full md:pt-2 gap-2 md:gap-0"
     @submit.prevent
+    @keyup.enter="submitMessage(sendMessageFormRef, messageFormItem)"
   >
     <el-form-item
-      ref="messageInputRef"
+      ref="messageFormItem"
       class="flex-1 m-0" prop="message"
     >
       <el-input
-        v-model="sendMessageModel.message" class="message-input" placeholder="Write a message"
+        ref="messageInputRef"
+        v-model="sendMessageModel.message"
+        class="message-input"
+        placeholder="Write a message"
       />
     </el-form-item>
 
@@ -53,7 +57,7 @@
       <el-button
         :type="$elComponentType.primary"
         :disabled="!isValid"
-        @click="submitMessage(sendMessageFormRef, messageInputRef)"
+        @click="submitMessage(sendMessageFormRef, messageFormItem)"
       >
         {{ submitButtonText }}
       </el-button>
@@ -98,6 +102,7 @@ const {
 const chatStore = useChatStore()
 const { currentChat, messages, messageToEdit } = storeToRefs(chatStore)
 
+const messageFormItem = ref(null)
 const messageInputRef = ref(null)
 
 const editMode = computed(() => !!messageToEdit.value)
@@ -160,8 +165,9 @@ async function submitMessage (formRef, inputRef) {
   }
 }
 
-watch(messageToEdit, (message) => {
+watch(messageToEdit, async (message) => {
   sendMessageModel.message = message?.message ?? ''
+  messageInputRef.value?.focus()
 })
 </script>
 

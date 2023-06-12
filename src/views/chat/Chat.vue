@@ -197,7 +197,7 @@ function editMessage (message: IMessage) {
     }
   }
 
-  if (chats.value[message.chat_id]) {
+  if (chats.value[message.chat_id].message_id === message.id) {
     chats.value[message.chat_id].message = message.message
   }
 }
