@@ -1,12 +1,14 @@
 <template>
   <el-drawer
+    ref="drawer"
     :modelValue="modelValue"
     size="280px"
-    :modal="false"
     :lock-scroll="false"
-    :style="{top: '58px', position: 'fixed', zIndex: '3000'}"
+    :style="{top: '58px', position: 'fixed'}"
     class="shadow-2xl rounded-l-2xl border-l border-border-primary"
     :show-close="false"
+    append-to-body
+    close-on-click-modal
     @open="$emit('update:modelValue', true)"
     @close="$emit('update:modelValue', false)"
   >
@@ -77,5 +79,11 @@ defineProps<{
   currentChat: TCurrentChat
 }>()
 
-defineEmits(['update:modelValue', 'deleteChat'])
+const emit = defineEmits(['update:modelValue', 'deleteChat'])
+
+const drawer = ref(null)
+
+onClickOutside(drawer, () => {
+  emit('update:modelValue', false)
+})
 </script>

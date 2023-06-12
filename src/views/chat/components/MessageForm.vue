@@ -18,7 +18,7 @@
           Stop Camera
         </el-button>
 
-        <el-button @click="sendMessageModel.message=signLanguageMessage">
+        <el-button @click="sendMessageModel.message+=signLanguageMessage">
           Save to input
         </el-button>
 
