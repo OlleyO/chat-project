@@ -54,19 +54,10 @@ defineProps<{
 const emit = defineEmits(['onClose', 'openCreateReportForm'])
 
 const chatStore = useChatStore()
-const { chats, currentChat, chatsLoading } = storeToRefs(chatStore)
+const { chats, foundChats, chatsToShow, currentChat, chatsLoading } = storeToRefs(chatStore)
 const { findChat } = chatStore
 
 const userInput = ref('')
-const filteredChats = ref<TChatsTransformed>({})
-
-const chatsToShow = computed(() => {
-  const _chats = userInput.value.trim() ? filteredChats.value : chats.value
-  const chatsArray = Object.keys(_chats).map(key => _chats[key])
-  chatsArray.sort((ch1, ch2) => new Date(ch2.updated_at).getTime() - new Date(ch1.updated_at).getTime())
-
-  return chatsArray
-})
 
 const showNoChats = computed(() => !chatsToShow.value.length)
 
@@ -81,9 +72,7 @@ function onContactItemClicked (chatId: string) {
 const debouncedFindChat = useDebounceFn(async () => {
   try {
     chatsLoading.value = true
-    const fetchedChats = await findChat(userInput.value.trim()) ?? []
-
-    filteredChats.value = chatService.chatsArrayToObject(fetchedChats)
+    await findChat(userInput.value.trim())
   } catch (err) {
     notificationHandler(err as TAppError)
   } finally {
@@ -95,7 +84,7 @@ watch(userInput, async (input) => {
   if (input.trim()) {
     debouncedFindChat()
   } else {
-    filteredChats.value = {}
+    foundChats.value = null
   }
 })
 </script>

@@ -7,6 +7,7 @@ export const useChatStore = defineStore('chatStore', () => {
   const maxMessagesPerRequest = 20
 
   const chats = ref<TChatsTransformed>({})
+  const foundChats = ref<TChatsTransformed | null>(null)
   const messages = ref<IMessage[]>([])
   const currentChat = ref<TCurrentChat>()
   const messageToEdit = ref<IMessage | null>(null)
@@ -20,6 +21,15 @@ export const useChatStore = defineStore('chatStore', () => {
     return messages.value[lastReadIndex]
   })
 
+  const chatsToShow = computed(() => {
+    const _chats = foundChats.value ? foundChats.value : chats.value
+
+    const chatsArray = Object.keys(_chats).map(key => _chats[key])
+    chatsArray.sort((ch1, ch2) => new Date(ch2.updated_at).getTime() - new Date(ch1.updated_at).getTime())
+
+    return chatsArray
+  })
+
   async function loadMessageBatch (chatId: string) {
     const messageBatch = await chatService.getMessages(messages.value.length,
       messages.value.length + maxMessagesPerRequest, chatId) as unknown as IMessage[]
@@ -31,7 +41,7 @@ export const useChatStore = defineStore('chatStore', () => {
     if (currentUser.value) {
       const fetchedChats = await chatService.getChatsViews(currentUser.value.id)
 
-      chats.value = chatService.chatsArrayToObject(fetchedChats)
+      chats.value = parseArrayToObject(fetchedChats, 'chat_id')
 
       return fetchedChats
     }
@@ -42,7 +52,9 @@ export const useChatStore = defineStore('chatStore', () => {
       throw new Error('Error finding chats')
     }
 
-    return await chatService.findChats(searchQuery, currentUser.value.id) as TChatData
+    const fetchedChats = await chatService.findChats(searchQuery, currentUser.value.id) as TChatData
+
+    foundChats.value = parseArrayToObject(fetchedChats, 'chat_id')
   }
 
   async function deleteChat () {
@@ -55,11 +67,13 @@ export const useChatStore = defineStore('chatStore', () => {
 
   return {
     chats,
+    foundChats,
     messages,
     currentChat,
     messageToEdit,
     chatsLoading,
     lastReadMessage,
+    chatsToShow,
     loadMessageBatch,
     getChats,
     findChat,

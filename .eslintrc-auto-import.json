@@ -78,6 +78,7 @@
     "onStartTyping": true,
     "onUnmounted": true,
     "onUpdated": true,
+    "parseArrayToObject": true,
     "pausableWatch": true,
     "provide": true,
     "reactify": true,

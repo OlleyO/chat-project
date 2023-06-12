@@ -164,13 +164,6 @@ class ChatService {
     }).subscribe()
   }
 
-  chatsArrayToObject (chats: TChatData) {
-    return chats.reduce((prev, curr) => ({
-      ...prev,
-      [curr.chat_id]: { ...curr }
-    }), {} as TChatsTransformed)
-  }
-
   async sendReport (report: any) {
     const { error } = await useSupabase().from('reports').insert(report)
 
