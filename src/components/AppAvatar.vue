@@ -1,6 +1,6 @@
 <template>
   <div class="relative flex">
-    <el-avatar :size="size" :src="src">
+    <el-avatar :class="`text-[${0.4*size}]`" :size="size" :src="src">
       {{ createInitials(fullname) }}
     </el-avatar>
 

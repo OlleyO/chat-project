@@ -8,9 +8,16 @@
     <div class="flex gap-20 items-center">
       <AppLogo class="hidden md:flex items-center" />
 
-      <p class="font-semibold text-sm text-primary">
-        {{ currentChat?.fullname }}
-      </p>
+      <div class="flex items-center gap-2">
+        <AppAvatar
+          :src="currentChat?.avatar_url"
+          :fullname="currentChat?.fullname"
+          :size="32"
+        />
+        <p class="font-semibold text-sm text-primary">
+          {{ currentChat?.fullname }}
+        </p>
+      </div>
     </div>
 
     <div class="flex items-center self-stretch">
