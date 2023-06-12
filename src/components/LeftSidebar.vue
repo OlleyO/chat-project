@@ -38,7 +38,7 @@
       class="mx-5"
       @click="$emit('openCreateReportForm')"
     >
-      Send Report
+      Report System
     </el-button>
   </aside>
 </template>
@@ -71,8 +71,10 @@ const chatsToShow = computed(() => {
 const showNoChats = computed(() => !chatsToShow.value.length)
 
 function onContactItemClicked (chatId: string) {
-  currentChat.value = chatsToShow.value.find(ch => ch?.chat_id === chatId)
+  const chat = { ...chatsToShow.value.find(ch => ch?.chat_id === chatId) as TChatItem }
+  currentChat.value = chat
   userInput.value = ''
+  chats.value[chatId] = chat
   emit('onClose')
 }
 

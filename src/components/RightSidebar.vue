@@ -63,6 +63,15 @@
         class="justify-start"
         :type="$elComponentType.danger"
         text
+        @click="$emit('openCreateReportForm', currentChat)"
+      >
+        Report User
+      </el-button>
+
+      <el-button
+        class="justify-start"
+        :type="$elComponentType.danger"
+        text
         @click="$emit('deleteChat')"
       >
         Delete conversation
@@ -79,11 +88,12 @@ defineProps<{
   currentChat: TCurrentChat
 }>()
 
-const emit = defineEmits(['update:modelValue', 'deleteChat'])
+const emit = defineEmits(['update:modelValue', 'deleteChat', 'openCreateReportForm'])
 
 const drawer = ref(null)
 
 onClickOutside(drawer, () => {
   emit('update:modelValue', false)
 })
+
 </script>
