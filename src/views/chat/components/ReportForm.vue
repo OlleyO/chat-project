@@ -15,7 +15,13 @@
       :rules="formRules"
     >
       <el-form-item label="Reason" prop="reason">
-        <el-input v-model="formModel.reason" />
+        <el-input
+          v-model="formModel.reason"
+          type="textarea"
+          rows="3"
+          resize="none"
+          placeholder="Report a problem"
+        />
       </el-form-item>
     </el-form>
 
