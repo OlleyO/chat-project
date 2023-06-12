@@ -2,7 +2,9 @@
   <div
     v-loading="messagesLoading"
     class="relative flex flex-col justify-items-center items-center
-    pt-2 pb-2 md:pb-5 overflow-hidden h-full"
+    pt-2 pb-2 md:pb-0 overflow-hidden h-full
+    xl:max-w-[calc(100%-280px)]
+    "
   >
     <div
       ref="messagesList"
@@ -28,6 +30,7 @@
     <el-button
       v-if="showScrollToLastReadButton"
       class="absolute bottom-40 right-5"
+      :icon="BottomArrow"
       @click="scrollToLastRead"
     >
       <span class="mr-2">Unread</span>
@@ -37,7 +40,7 @@
       </Badge>
     </el-button>
 
-    <div class="md:min-w-[320px] w-full pt-2 px-5 flex-shrink-0 pb-5">
+    <div class="md:min-w-[320px] w-full pt-2 px-5 flex-shrink-0 pb-3">
       <MessageForm
         :chatId="($route.params.id as string)"
         :senderId="(currentUser?.id as string)"
@@ -48,6 +51,8 @@
 
 <script lang="ts" setup>
 import { routeNames } from '@/router/route-names'
+
+import BottomArrow from '@/components/icons/BottomArrow.vue'
 
 import Message from './components/Message.vue'
 import MessageForm from './components/MessageForm.vue'
@@ -170,21 +175,30 @@ function addMessage (newMessage: IMessage, chatId: string) {
   }
 }
 
-function deleteMessage (message: any) {
+function deleteMessage (message: IMessage) {
   messages.value = messages.value.filter(msg => msg.id !== message.id)
+
+  if (chats.value[message.chat_id]) {
+    const lastMessage = messages.value[messages.value.length - 1]
+    chats.value[message.chat_id].message = lastMessage.message
+    chats.value[message.chat_id].message_created_at = lastMessage.created_at
+    chats.value[message.chat_id].message_id = lastMessage.id
+    chats.value[message.chat_id].updated_at = lastMessage.created_at
+  }
 }
 
-function editMessage (message: any) {
+function editMessage (message: IMessage) {
   const msgIndex = messages.value.findIndex(msg => msg.id === message.id)
 
   if (msgIndex !== -1) {
-    const messagesCopy = [...messages.value]
-    messagesCopy[msgIndex] = {
-      ...messagesCopy[msgIndex],
+    messages.value[msgIndex] = {
+      ...messages.value[msgIndex],
       message: message.message
     }
+  }
 
-    messages.value = messagesCopy
+  if (chats.value[message.chat_id]) {
+    chats.value[message.chat_id].message = message.message
   }
 }
 
@@ -213,9 +227,7 @@ function clearConversation (chat: any) {
     router.replace({ name: routeNames.chat })
   }
 
-  const copy = { ...chats.value }
-  delete copy[chat.id]
-  chats.value = { ...copy }
+  delete chats.value[chat.id]
 }
 
 async function initialLoadMessages (chatId: string) {
@@ -249,22 +261,16 @@ async function subscribeToChatMessagesEvents (chatId: string) {
   })
 
   chatService.onDeleteMessage((message) => {
-    // listen to this events only if chat is open
-    if (message.chat_id === chatId) {
-      deleteMessage(message)
-    }
+    deleteMessage(message)
   })
 
   chatService.onUpdateMessage((payload) => {
     const updatedMessage = payload.new
 
-    // listen to this events only if chat is open
-    if (updatedMessage.chat_id === payload.new.chat_id) {
-      if (payload.old.read === updatedMessage.read) {
-        editMessage(updatedMessage)
-      } else {
-        markAsRead(updatedMessage)
-      }
+    if (payload.old.read === updatedMessage.read) {
+      editMessage(updatedMessage)
+    } else {
+      markAsRead(updatedMessage)
     }
   })
 

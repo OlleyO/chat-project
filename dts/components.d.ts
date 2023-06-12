@@ -12,6 +12,7 @@ declare module '@vue/runtime-core' {
     AppAvatar: typeof import('./../src/components/AppAvatar.vue')['default']
     AppLogo: typeof import('./../src/components/AppLogo.vue')['default']
     Badge: typeof import('./../src/components/Badge.vue')['default']
+    BottomArrow: typeof import('./../src/components/icons/BottomArrow.vue')['default']
     BurgerMenu: typeof import('./../src/components/icons/BurgerMenu.vue')['default']
     ChatForm: typeof import('./../src/views/chat/components/ChatForm.vue')['default']
     CloseCross: typeof import('./../src/components/icons/CloseCross.vue')['default']
