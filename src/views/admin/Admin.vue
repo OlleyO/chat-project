@@ -1,6 +1,11 @@
 <template>
   <div class="p-5">
-    <h1>Reports</h1>
+    <header class="flex items-center justify-between">
+      <h1>Reports</h1>
+
+      <el-button :type="$elComponentType.primary" @click="$router.push({ name: $routeNames.chat })">Home</el-button>
+    </header>
+
     <el-tabs v-model="activeTab" class="demo-tabs">
       <el-tab-pane label="System" name="system">
         <el-table :data="systemReports" border style="width: 100%">

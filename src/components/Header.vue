@@ -45,6 +45,12 @@
               </el-button>
             </el-dropdown-item>
 
+            <el-dropdown-item v-if="currentUser?.user_metadata.is_admin">
+              <el-button class="rounded-none" text @click="$router.push({name: $routeNames.admin})">
+                Reports
+              </el-button>
+            </el-dropdown-item>
+
             <el-dropdown-item>
               <LogOutButton class="rounded-none w-full" />
             </el-dropdown-item>
