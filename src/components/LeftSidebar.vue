@@ -64,8 +64,8 @@ const showNoChats = computed(() => !chatsToShow.value.length)
 function onContactItemClicked (chatId: string) {
   const chat = { ...chatsToShow.value.find(ch => ch?.chat_id === chatId) as TChatItem }
   currentChat.value = chat
-  userInput.value = ''
   chats.value[chatId] = chat
+  userInput.value = ''
   emit('onClose')
 }
 
