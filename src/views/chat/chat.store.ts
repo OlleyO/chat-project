@@ -68,6 +68,7 @@ export const useChatStore = defineStore('chatStore', () => {
   }
 
   return {
+    maxMessagesPerRequest,
     chats,
     foundChats,
     cachedMessages,

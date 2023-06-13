@@ -68,7 +68,7 @@ const chatStore = useChatStore()
 
 const { currentUser } = storeToRefs(authStore)
 const { messages, cachedMessages, lastReadMessage, chats, currentChat, chatsLoading } = storeToRefs(chatStore)
-const { loadMessageBatch, getChats } = chatStore
+const {maxMessagesPerRequest, loadMessageBatch, getChats } = chatStore
 
 const messagesLoading = ref(false)
 const messagesBatchLoading = ref(false)
@@ -90,7 +90,7 @@ async function scrollToLastRead () {
 
 useInfiniteScroll(messagesList, async () => {
   const chatId = route.params.id as string
-  if (chatId && !messagesLoading.value) {
+  if (chatId && !messagesLoading.value && messages.value.length >= maxMessagesPerRequest) {
     messagesBatchLoading.value = true
     await loadMessageBatch(chatId)
     messagesBatchLoading.value = false
