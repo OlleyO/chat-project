@@ -81,7 +81,6 @@ const showBadgeCountAsDot = computed(() => chats.value[route.params.id as string
 const showNoMessages = computed(() => !messages.value.length && !messagesLoading.value)
 
 async function scrollToLastRead () {
-  // await nextTick()
   messagesRef.value.find(m => m.$props.message.id === lastReadMessage.value.id)?.$el.nextElementSibling.scrollIntoView({
     behavior: 'smooth',
     block: 'end',
@@ -143,19 +142,20 @@ function addMessage (newMessage: TMessage) {
   const chat = chats.value[newMessage.chat_id]
 
   if (chat) {
-    if (cachedMessages.value[chat.chat_id]) {
-      cachedMessages.value[chat.chat_id]?.push({ ...newMessage, read: false })
+    const chatId = chat.chat_id
+
+    if (cachedMessages.value[chatId]) {
+      cachedMessages.value[chatId]?.push({ ...newMessage, read: false })
     }
 
-    const ch = { ...chat }
-    chats.value[ch.chat_id].message = newMessage.message
-    chats.value[ch.chat_id].message_created_at = newMessage.created_at
-    chats.value[ch.chat_id].message_id = newMessage.id
-    chats.value[ch.chat_id].updated_at = newMessage.created_at
+    chats.value[chatId].message = newMessage.message
+    chats.value[chatId].message_created_at = newMessage.created_at
+    chats.value[chatId].message_id = newMessage.id
+    chats.value[chatId].updated_at = newMessage.created_at
 
     if (currentUser.value?.id !== newMessage.users?.id) {
-      const unreadMessagesCount = chats.value[ch.chat_id].unread_messages_count
-      chats.value[ch.chat_id].unread_messages_count = unreadMessagesCount + 1 || 1
+      const unreadMessagesCount = chats.value[chatId].unread_messages_count
+      chats.value[chatId].unread_messages_count = unreadMessagesCount + 1 || 1
     }
   }
 }
@@ -166,12 +166,14 @@ function deleteMessage (message: TMessage) {
   }
 
   if (chats.value[message.chat_id]) {
+    const chatId = message.chat_id
+
     const lastMessage =
     cachedMessages.value[message.chat_id][cachedMessages.value[message.chat_id]?.length - 1 || 0] || message
-    chats.value[message.chat_id].message = lastMessage.message
-    chats.value[message.chat_id].message_created_at = lastMessage.created_at
-    chats.value[message.chat_id].message_id = lastMessage.id
-    chats.value[message.chat_id].updated_at = lastMessage.created_at
+    chats.value[chatId].message = lastMessage.message
+    chats.value[chatId].message_created_at = lastMessage.created_at
+    chats.value[chatId].message_id = lastMessage.id
+    chats.value[chatId].updated_at = lastMessage.created_at
   }
 }
 
