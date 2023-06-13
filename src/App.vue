@@ -1,17 +1,10 @@
 <template>
-  <ElConfigProvider
-    :locale="{
-      name: locale,
-      el: messages[locale]?.el
-    }"
-  >
+  <ElConfigProvider>
     <router-view />
   </ElConfigProvider>
 </template>
 
 <script lang="ts" setup>
-const { messages, locale } = useI18n()
-
 const { startListenToAuthStateChange } = useAuthStore()
 
 onMounted(() => {
