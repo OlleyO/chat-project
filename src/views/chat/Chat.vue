@@ -68,7 +68,7 @@ const chatStore = useChatStore()
 
 const { currentUser } = storeToRefs(authStore)
 const { messages, cachedMessages, lastReadMessage, chats, currentChat, chatsLoading } = storeToRefs(chatStore)
-const {maxMessagesPerRequest, loadMessageBatch, getChats } = chatStore
+const { maxMessagesPerRequest, loadMessageBatch, getChats } = chatStore
 
 const messagesLoading = ref(false)
 const messagesBatchLoading = ref(false)
