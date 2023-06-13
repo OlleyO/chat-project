@@ -23,7 +23,7 @@ export const routeGuard = async (
         }
       }
 
-      return next({ name: routeNames.login })
+      return to.meta.requireAdmin ? next({ name: routeNames.notFound }) : next({ name: routeNames.login })
     } else {
       return next()
     }

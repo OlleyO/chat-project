@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
 
+import { notFoundRoutes } from '@/views/404/404.routes'
 import { adminRoutes } from '@/views/admin/admin.routes'
 import { authRoutes } from '@/views/auth/auth.routes'
 import { chatRoutes } from '@/views/chat/chat.routes'
@@ -21,11 +22,7 @@ const defaultLayoutRoutes: RouteRecordRaw = {
 }
 
 const routes: Array<RouteRecordRaw> = [
-  {
-    path: '/:pathMatch(.*)*',
-    redirect: '/'
-  },
-
+  notFoundRoutes,
   adminRoutes,
   authRoutes,
   settingsRoutes,
