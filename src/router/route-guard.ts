@@ -7,12 +7,29 @@ export const routeGuard = async (
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) => {
-  // todo: please write your own route guard
   const authStore = useAuthStore()
+  const { currentUser } = storeToRefs(authStore)
+  const { loadUser } = authStore
 
-  if (!to.meta.requireAuth || authStore.isAuthenticated) {
-    return next()
-  } else {
+  try {
+    if (to.meta.requireAuth || to.meta.requireAdmin) {
+      await loadUser()
+
+      if (to.meta.requireAdmin && currentUser.value?.user_metadata.is_admin) {
+        return next()
+      } else {
+        if (currentUser.value && !to.meta.requireAdmin) {
+          return next()
+        }
+      }
+
+      return next({ name: routeNames.login })
+    } else {
+      return next()
+    }
+  } catch (err) {
+    notificationHandler('Session expired')
+
     return next({ name: routeNames.login })
   }
 }

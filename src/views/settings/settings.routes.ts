@@ -7,5 +7,8 @@ export const settingsRouteNames = {
 export const settingsRoutes: RouteRecordRaw = {
   name: settingsRouteNames.settings,
   path: '/settings',
-  component: () => import('./Settings.vue')
+  component: () => import('./Settings.vue'),
+  meta: {
+    requireAuth: true
+  }
 }

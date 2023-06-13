@@ -1,24 +1,46 @@
 <template>
   <div
     v-loading="messagesLoading"
-    class="flex flex-col justify-items-center items-center pt-2 pb-2 md:pb-5 overflow-hidden h-full"
+    class="relative flex flex-col justify-items-center items-center
+    pt-2 pb-2 md:pb-0 overflow-hidden h-full
+    xl:max-w-[calc(100%-280px)] mx-auto
+    "
   >
     <div
       ref="messagesList"
       class="overflow-y-auto no-scrollbar flex-1 w-full px-5 md:px-20 pb-5 flex flex-col gap-6"
     >
       <div v-loading="messagesBatchLoading" />
+
       <Message
         v-for="message in messages"
-        :key="message.id" :message="message"
+        ref="messagesRef"
+        :key="message.id"
+        :message="message"
         :currentUserMessage="currentUser?.id === message.users.id"
         :last="message.id === messages[messages.length-1].id"
         :lastRead="message.id === lastReadMessage?.id"
-        @onMessageRead="markAsRead"
+      />
+      <NoContent
+        v-if="showNoMessages"
+        class="self-center my-auto" message="Start Conversation"
       />
     </div>
 
-    <div class="md:min-w-[320px] w-full pt-2 px-5 flex-shrink-0 pb-5">
+    <el-button
+      v-if="showScrollToLastReadButton"
+      class="absolute bottom-40 right-5"
+      :icon="BottomArrow"
+      @click="scrollToLastRead"
+    >
+      <span class="mr-2">Unread</span>
+
+      <Badge :dot="showBadgeCountAsDot">
+        {{ chats[$route.params.id as string].unread_messages_count }}
+      </Badge>
+    </el-button>
+
+    <div class="md:min-w-[320px] w-full pt-2 px-5 flex-shrink-0 pb-3">
       <MessageForm
         :chatId="($route.params.id as string)"
         :senderId="(currentUser?.id as string)"
@@ -30,29 +52,45 @@
 <script lang="ts" setup>
 import { routeNames } from '@/router/route-names'
 
+import BottomArrow from '@/components/icons/BottomArrow.vue'
+
 import Message from './components/Message.vue'
 import MessageForm from './components/MessageForm.vue'
 
 const route = useRoute()
+const router = useRouter()
+
+const messagesList = ref<HTMLDivElement | null>(null)
+const messagesRef = ref<InstanceType<typeof Message>[]>([])
 
 const authStore = useAuthStore()
 const chatStore = useChatStore()
 
+const { currentUser } = storeToRefs(authStore)
+const { messages, cachedMessages, lastReadMessage, chats, currentChat, chatsLoading } = storeToRefs(chatStore)
+const { maxMessagesPerRequest, loadMessageBatch, getChats } = chatStore
+
 const messagesLoading = ref(false)
 const messagesBatchLoading = ref(false)
 
-const { currentUser } = storeToRefs(authStore)
-const { messages, lastReadMessage, chats, currentChat, chatsLoading } = storeToRefs(chatStore)
+const showScrollToLastReadButton = computed(
+  () => chats.value[route.params.id as string]?.unread_messages_count
+)
+const showBadgeCountAsDot = computed(() => chats.value[route.params.id as string].unread_messages_count === 1)
 
-const { loadMessageBatch, getChats } = chatStore
+const showNoMessages = computed(() => !messages.value.length && !messagesLoading.value)
 
-const router = useRouter()
-
-const messagesList = ref<HTMLDivElement | null>(null)
+async function scrollToLastRead () {
+  messagesRef.value.find(m => m.$props.message.id === lastReadMessage.value.id)?.$el.nextElementSibling.scrollIntoView({
+    behavior: 'smooth',
+    block: 'end',
+    inline: 'nearest'
+  })
+}
 
 useInfiniteScroll(messagesList, async () => {
   const chatId = route.params.id as string
-  if (chatId && !messagesLoading.value) {
+  if (chatId && !messagesLoading.value && messages.value.length >= maxMessagesPerRequest) {
     messagesBatchLoading.value = true
     await loadMessageBatch(chatId)
     messagesBatchLoading.value = false
@@ -75,86 +113,171 @@ async function loadChatsAndRedirectToLastActive () {
       })
     }
   } catch (err) {
-    console.log(err)
+    notificationHandler(err as TAppError)
+    router.replace({
+      name: routeNames.chat
+    })
   } finally {
     chatsLoading.value = false
   }
 }
 
-watch(currentUser, async () => {
-  loadChatsAndRedirectToLastActive()
-}, { immediate: true })
-
 function markAsRead (message: IDatabase['public']['Tables']['messages']['Row']) {
-  const chatIndex = chats.value.findIndex(chat => chat.chat_id === message.chat_id)
+  const chat = chats.value[message.chat_id]
 
-  if (chatIndex !== -1) {
-    const copy = { ...chats.value[chatIndex] }
-    copy.unread_messages_count = copy.unread_messages_count ? copy.unread_messages_count - 1 : 0
+  const msgIndex = messages.value.findIndex(msg => msg.id === message.id)
 
-    chats.value = [...chats.value.slice(0, chatIndex), copy, ...chats.value.slice(chatIndex + 1)]
+  if (msgIndex !== -1) {
+    cachedMessages.value[message.chat_id][msgIndex].read = true
+  }
+
+  if (chat) {
+    const unreadMessagesCount = chat.unread_messages_count
+
+    chats.value[chat.chat_id].unread_messages_count = unreadMessagesCount ? unreadMessagesCount - 1 : 0
   }
 }
 
-function addMessage (newMessage: IMessage, chatId: string) {
-  if (chatId === newMessage.chat_id) {
-    messages.value = [...messages.value, { ...newMessage, read: false }]
-  }
+function addMessage (newMessage: TMessage) {
+  const chat = chats.value[newMessage.chat_id]
 
-  const chatIndex = chats.value.findIndex((ch) => ch.chat_id === newMessage.chat_id)
+  if (chat) {
+    const chatId = chat.chat_id
 
-  if (chatIndex !== -1) {
-    const ch = { ...chats.value[chatIndex] }
-    ch.message = newMessage.message
-    ch.message_created_at = newMessage.created_at
-    ch.message_id = newMessage.id
-
-    if (currentUser.value?.id !== newMessage.users.id) {
-      ch.unread_messages_count = ch.unread_messages_count
-        ? ch.unread_messages_count + 1
-        : 1
+    if (cachedMessages.value[chatId]) {
+      cachedMessages.value[chatId]?.push({ ...newMessage, read: false })
     }
 
-    const copy = [...chats.value]
+    chats.value[chatId].message = newMessage.message
+    chats.value[chatId].message_created_at = newMessage.created_at
+    chats.value[chatId].message_id = newMessage.id
+    chats.value[chatId].updated_at = newMessage.created_at
 
-    copy.splice(chatIndex, 1)
-    chats.value = [ch, ...copy]
+    if (currentUser.value?.id !== newMessage.users?.id) {
+      const unreadMessagesCount = chats.value[chatId].unread_messages_count
+      chats.value[chatId].unread_messages_count = unreadMessagesCount + 1 || 1
+    }
   }
+}
+
+function deleteMessage (message: TMessage) {
+  if (cachedMessages.value[message.chat_id]) {
+    cachedMessages.value[message.chat_id] = cachedMessages.value[message.chat_id].filter(msg => msg.id !== message.id)
+  }
+
+  if (chats.value[message.chat_id]) {
+    const chatId = message.chat_id
+
+    const lastMessage =
+    cachedMessages.value[message.chat_id][cachedMessages.value[message.chat_id]?.length - 1 || 0] || message
+    chats.value[chatId].message = lastMessage.message
+    chats.value[chatId].message_created_at = lastMessage.created_at
+    chats.value[chatId].message_id = lastMessage.id
+    chats.value[chatId].updated_at = lastMessage.created_at
+  }
+}
+
+function editMessage (message: TMessage) {
+  const msgIndex = cachedMessages.value[message.chat_id]?.findIndex(msg => msg.id === message.id) || -1
+
+  if (msgIndex !== -1) {
+    cachedMessages.value[message.chat_id][msgIndex].message = message.message
+  }
+
+  if (chats.value[message.chat_id].message_id === message.id) {
+    chats.value[message.chat_id].message = message.message
+  }
+}
+
+async function addChat (chat: IDatabase['public']['Tables']['chats']['Row']) {
+  if (currentUser.value) {
+    const fetchedChats = await chatService.getChatsViews(currentUser.value?.id, chat.id)
+
+    if (fetchedChats.length) {
+      chats.value = {
+        ...chats.value,
+        [fetchedChats[0].chat_id]: {
+          ...fetchedChats[0],
+          unread_messages_count: 0
+
+        }
+      }
+    }
+  }
+}
+
+function clearConversation (chat: any) {
+  if (currentChat.value?.chat_id === chat.id) {
+    cachedMessages.value[chat.id] = []
+    currentChat.value = null
+
+    router.replace({ name: routeNames.chat })
+  }
+
+  delete chats.value[chat.id]
 }
 
 async function initialLoadMessages (chatId: string) {
-  messages.value = []
-
   try {
-    messagesLoading.value = true
-    await loadMessageBatch(chatId)
+    if (!cachedMessages.value[chatId]) {
+      messagesLoading.value = true
+      cachedMessages.value[chatId] = []
+      await loadMessageBatch(chatId)
+    }
   } catch (err) {
-    console.log(err)
+    notificationHandler(err as TAppError)
   } finally {
     messagesLoading.value = false
   }
 }
 
-function subscribeToChatMessagesEvents (chatId: string) {
-  chatService.onNewMessage((newMessage) => {
-    addMessage(newMessage, chatId)
+async function subscribeToChatMessagesEvents () {
+  // to track what users chat shoud be added to
+  let newChat: IDatabase['public']['Tables']['chats']['Row'] | null = null
+
+  await chatService.onNewChat(async (chat) => {
+    newChat = chat
   })
 
-  chatService.onUpdateMessage((updatedMessage) => {
-    markAsRead(updatedMessage)
+  chatService.onNewMessage(async (newMessage) => {
+    if (newChat) {
+      await addChat(newChat)
+      newChat = null
+    }
+
+    addMessage(newMessage)
+  })
+
+  chatService.onDeleteMessage((message) => {
+    deleteMessage(message)
+  })
+
+  chatService.onUpdateMessage((payload) => {
+    const updatedMessage = payload.new
+
+    if (payload.old.read === updatedMessage.read) {
+      editMessage(updatedMessage)
+    } else {
+      markAsRead(updatedMessage)
+    }
+  })
+
+  chatService.onDeleteChat((chat) => {
+    clearConversation(chat)
   })
 }
 
+onMounted(async () => {
+  loadChatsAndRedirectToLastActive()
+})
+
 watch(route, async (route) => {
   const chatId = route.params.id as string
-  messages.value = []
 
   if (chatId) {
-    currentChat.value = chats.value.find((ch) => ch.chat_id === chatId)
-
     initialLoadMessages(chatId)
-
-    subscribeToChatMessagesEvents(chatId)
   }
+
+  subscribeToChatMessagesEvents()
 }, { immediate: true })
 </script>

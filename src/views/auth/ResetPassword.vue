@@ -26,6 +26,15 @@
 </template>
 
 <script lang="ts" setup>
+import { routeNames } from '@/router/route-names'
+
+const router = useRouter()
+
+const store = useAuthStore()
+const { resetPassword } = store
+
+const loading = ref(false)
+
 const resetPasswordRef = useElFormRef()
 const resetPasswordModel = useElFormModel<IResetPasswordPayload>({
   password: ''
@@ -34,18 +43,16 @@ const resetPasswordRules = useElFormRules({
   password: [useMinLenRule(6), useRequiredRule()]
 })
 
-const store = useAuthStore()
-const { resetPassword } = store
-const loading = ref(false)
-
 function submit (formRef) {
   formRef.validate(async (valid) => {
     if (valid) {
       try {
         loading.value = true
         await resetPassword(resetPasswordModel.password)
+        notificationHandler('Successfully reset password', { duration: 2000, type: 'success' })
+        router.replace({ name: routeNames.login })
       } catch (err) {
-        console.log(err)
+        notificationHandler(err as TAppError)
       } finally {
         loading.value = false
       }

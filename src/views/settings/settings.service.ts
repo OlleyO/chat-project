@@ -15,17 +15,10 @@ class SettingsService {
     return data
   }
 
-  async updateProfile (profile: IProfile) {
-    const {
-      email,
-      avatar_url: avatarUrl,
-      fullname, username,
-      bio, tagname
-    } = profile
-
+  async updateProfile ({ email, ...rest }: IProfile) {
     const { data, error } = await useSupabase().auth.updateUser({
       email,
-      data: { fullname, username, bio, tagname, avatar_url: avatarUrl }
+      data: rest
     })
 
     if (error) {
@@ -52,6 +45,16 @@ class SettingsService {
     }
 
     return data
+  }
+
+  async deleteAccount (userId: string) {
+    const { error } = await useSupabase().rpc('delete_user', {
+      user_id: userId
+    })
+
+    if (error) {
+      throw error
+    }
   }
 }
 

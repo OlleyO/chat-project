@@ -1,7 +1,10 @@
 import 'vue-router'
+
 import { routeNames } from '@/router/route-names'
 import { globalProperties, portalNames } from '@/plugins'
 import { EBadgeType, EElComponentSize, EElComponentType } from '@/types/enums'
+
+import type { PostgrestError, AuthError } from '@supabase/supabase-js'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -9,6 +12,7 @@ declare module 'vue-router' {
     label?: string
     parentName?: string
     requireAuth?: boolean
+    requireAdmin?: boolean
   }
 }
 
@@ -21,6 +25,7 @@ declare module '@vue/runtime-core' {
     // todo: These ones are used only for element library for size and type props;
     $elComponentSize: typeof EElComponentSize
     $elComponentType: typeof EElComponentType
+
     $badgeType: typeof EBadgeType
   }
 }
@@ -29,6 +34,8 @@ declare global {
   interface ObjectConstructor {
     keys<T>(obj: T): Array<keyof T>
   }
+
+  type TAppError = PostgrestError | Error | AuthError | string
 }
 
 export { }

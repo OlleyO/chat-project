@@ -16,13 +16,20 @@
     <div class="max-w-2xl mx-auto px-2">
       <el-form
         ref="profileFormRef" hide-required-asterisk :model="profileModel" :rules="profileFormRules"
-        class="flex flex-col border rounded-3xl bg-gray-100 backdrop-blur-lg px-10 py-10" label-position="top"
+        class="flex flex-col border rounded-3xl bg-gray-100 backdrop-blur-lg px-10 py-10"
+        label-position="top"
       >
         <div class="flex-col sm:flex-row flex justify-between sm:gap-16 items-center">
           <el-form-item prop="avatar_url">
             <template #label>
-              <label for="avatar" class="cursor-pointer relative overflow-hidden rounded-full">
-                <el-avatar class="cursor-pointer avatar-photo" :size="120" fit="cover" :src="profileModel.avatar_url" />
+              <label
+                for="avatar"
+                class="cursor-pointer relative overflow-hidden rounded-full"
+              >
+                <el-avatar
+                  class="cursor-pointer avatar-photo"
+                  :size="120" fit="cover" :src="profileModel.avatar_url"
+                />
 
                 <div
                   class="text-xs text-white text-center
@@ -38,7 +45,11 @@
             <input id="avatar" class="hidden" type="file" @change="onFileChange">
           </el-form-item>
 
-          <el-form-item class="w-full sm:w-auto flex-1" label="Username" prop="username">
+          <el-form-item
+            class="w-full sm:w-auto flex-1"
+            label="Username"
+            prop="username"
+          >
             <el-input v-model="profileModel.username" />
           </el-form-item>
         </div>
@@ -53,39 +64,50 @@
 
         <el-form-item label="Bio" prop="bio">
           <el-input
-            v-model="profileModel.bio" type="textarea" rows="3" resize="none"
+            v-model="profileModel.bio"
+            type="textarea"
+            rows="3"
+            resize="none"
             placeholder="Tell more about yourself"
           />
         </el-form-item>
 
-        <router-link class="text-sm text-link-primary" :to="{ name: $routeNames.forgotPassword }">
+        <router-link class="text-sm text-link-primary mb-5" :to="{ name: $routeNames.forgotPassword }">
           Reset password
         </router-link>
 
-        <div class="flex justify-end gap-5">
+        <div class="flex justify-between gap-5">
+          <el-button :type="$elComponentType.danger" @click="deleteAccountModalVisible = true">
+            Delete Account
+          </el-button>
+
           <el-button :type="$elComponentType.primary" :disabled="!changesApplied" @click="submit(profileFormRef)">
             Save
           </el-button>
         </div>
       </el-form>
     </div>
+    <DeleteAccountModal v-model="deleteAccountModalVisible" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { settingsService } from './settings.service'
 
+import DeleteAccountModal from './components/DeleteAccountModal.vue'
+
 const authStore = useAuthStore()
-const { loadUser } = authStore
 const { currentUser } = storeToRefs(authStore)
 
 const loading = ref(false)
+const deleteAccountModalVisible = ref(false)
 
 const profileFormRef = useElFormRef()
 const profileModel = useElFormModel<IProfile>({
   // Do not create type for auth table,
   // because it can cause system vulnerability
   ...currentUser.value?.user_metadata as any,
+  email: currentUser.value?.email,
   avatar_file: null
 })
 
@@ -105,7 +127,7 @@ const changesApplied = computed(() => {
         }
 
         return profileModel[key] !== currentUser.value?.user_metadata[key]
-      })
+      }) || currentUser.value.email !== profileModel.email
   }
 })
 
@@ -146,27 +168,18 @@ function submit (formRef) {
           ...profileModel,
           avatar_url: avatarUrl || profileModel.avatar_url
         })
+
+        notificationHandler('Profile updated', {
+          type: 'success'
+        })
       } catch (err) {
-        console.log(err)
+        notificationHandler(err as TAppError)
       } finally {
         loading.value = false
       }
     }
   })
 }
-
-onMounted(async () => {
-  await loadUser()
-
-  if (currentUser.value) {
-    const { email, user_metadata: { fullname, username, bio, avatar_url: avatarUrl } } = currentUser.value
-    profileModel.email = email ?? ''
-    profileModel.fullname = fullname
-    profileModel.username = username
-    profileModel.bio = bio
-    profileModel.avatar_url = avatarUrl
-  }
-})
 </script>
 
 <style lang="scss">

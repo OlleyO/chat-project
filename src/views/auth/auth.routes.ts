@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
+
 import BlankLayout from '@/layouts/BlankLayout.vue'
 
 export const authRouteNames = {

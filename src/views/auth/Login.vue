@@ -54,6 +54,13 @@
 <script lang="ts" setup>
 import Logo from '@/components/icons/Logo.vue'
 
+const router = useRouter()
+
+const store = useAuthStore()
+const { logIn } = store
+
+const loading = ref(false)
+
 const loginFormRef = useElFormRef()
 const loginModel = useElFormModel<IAuthWithEmailAndPasswordPayload>({ email: '', password: '' })
 const loginRules = useElFormRules({
@@ -61,21 +68,18 @@ const loginRules = useElFormRules({
   password: [useMinLenRule(6), useRequiredRule()]
 })
 
-const router = useRouter()
-
-const store = useAuthStore()
-const { logIn } = store
-const loading = ref(false)
-
 function submit (formRef) {
   formRef.validate(async (valid) => {
     if (valid) {
       try {
         loading.value = true
         await logIn(loginModel)
+
+        notificationHandler('Logged In', { duration: 2000, type: 'success' })
+
         router.push({ name: 'chat' })
       } catch (err) {
-        console.log(err)
+        notificationHandler(err as TAppError)
       } finally {
         loading.value = false
       }

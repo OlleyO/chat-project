@@ -1,6 +1,6 @@
 <template>
   <div class="relative flex">
-    <el-avatar :size="size" :src="src">
+    <el-avatar :class="`text-[${0.4*size}]`" :size="size" :src="src">
       {{ createInitials(fullname) }}
     </el-avatar>
 
@@ -20,10 +20,6 @@ defineProps<{
 }>()
 
 function createInitials (fullname?: string | null) {
-  if (!fullname) {
-    return ''
-  }
-
-  return fullname?.split(' ').map(str => str.charAt(0)).join('')
+  return fullname?.split(' ').map(str => str.charAt(0)).join('') || ''
 }
 </script>

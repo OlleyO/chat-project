@@ -1,6 +1,6 @@
 <template>
   <aside
-    class="transition-all shadow-2xl fixed left-0 w-full md:w-[240px]
+    class="transition-all shadow-2xl fixed left-0 w-full md:w-[240px] flex flex-col
        lg:w-[320px] z-[999] py-12 md:py-3 top-0 bottom-0 border-r
        border-border-primary bg-block-primary"
     :class="open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
@@ -18,60 +18,79 @@
       :prefix-icon="MagnifyingGlass"
     />
 
-    <!-- TODO: Add v-infinite-scroll directive -->
-    <div v-loading="chatsLoading" class="overflow-y-auto h-full pb-2 md:pb-6 no-scrollbar">
+    <div v-loading="chatsLoading" class="overflow-y-auto flex-1 pb-2 md:pb-6 no-scrollbar">
       <ContactItem
         v-for="chat in chatsToShow"
         :key="chat.chat_id!"
         :open="chat.chat_id === $route.params.id"
         :chat="chat"
-        :online="!!onlineUsers[chat.user_id ?? '']"
+        :online="!!onlineUsers[chat.user_id]"
+        @click="onContactItemClicked(chat?.chat_id)"
+      />
+
+      <NoContent
+        v-if="showNoChats"
+        class="text-center mt-5" message="No Chats Found"
       />
     </div>
+
+    <el-button
+      class="mx-5"
+      @click="$emit('openCreateReportForm')"
+    >
+      Report System
+    </el-button>
   </aside>
 </template>
 
 <script lang="ts" setup>
 import MagnifyingGlass from '@/components/icons/MagnifyingGlass.vue'
-import ContactItem from '@/components/ContactItem.vue'
-import { useChatStore } from '@/views/chat/chat.store'
 
 defineProps<{
   open?: boolean
   onlineUsers: IOnlineUsers
 }>()
 
-const emit = defineEmits(['onClose'])
+const emit = defineEmits(['onClose', 'openCreateReportForm'])
 
 const chatStore = useChatStore()
-
-const { chats, chatsLoading } = storeToRefs(chatStore)
+const { chats, foundChats, chatsToShow, currentChat, chatsLoading } = storeToRefs(chatStore)
 const { findChat } = chatStore
 
 const userInput = ref('')
-const filteredChats = ref<TChatData>([])
 
-const chatsToShow = computed(() => filteredChats.value.length ? filteredChats.value : chats.value)
+const showNoChats = computed(() => !chatsToShow.value.length)
 
-watch(userInput, () => {
-  debouncedFindChat()
-})
+function onContactItemClicked (chatId: string) {
+  const chat = { ...chatsToShow.value.find(ch => ch?.chat_id === chatId) as TChatItem }
+  currentChat.value = chat
+  chats.value[chatId] = chat
+  userInput.value = ''
+  emit('onClose')
+}
 
 const debouncedFindChat = useDebounceFn(async () => {
   try {
     chatsLoading.value = true
-    filteredChats.value = await findChat(userInput.value) ?? []
+    await findChat(userInput.value.trim())
   } catch (err) {
-    console.log(err)
+    notificationHandler(err as TAppError)
   } finally {
     chatsLoading.value = false
   }
 }, 300)
+
+watch(userInput, async (input) => {
+  if (input.trim()) {
+    debouncedFindChat()
+  } else {
+    foundChats.value = null
+  }
+})
 </script>
 
 <style lang="scss">
 .search-input {
-
   .el-input__prefix {
     @apply text-xl leading-none;
   }

@@ -11,21 +11,14 @@ class AuthService {
     return data
   }
 
-  async registerWithEmailAndPassword (payload: TAuthWithEmailAndPasswordPayload) {
-    const {
-      email,
-      password,
-      fullname,
-      username
-    } = payload
+  async registerWithEmailAndPassword ({ email, password, ...rest }: TAuthWithEmailAndPasswordPayload) {
     const { data, error } = await useSupabase().auth.signUp({
       email,
       password,
       options: {
         data: {
-          fullname,
-          username,
-          tagname: `@${username}`,
+          ...rest,
+          tagname: `@${rest.username}`,
           bio: ''
         }
       }

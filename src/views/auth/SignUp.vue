@@ -64,6 +64,15 @@
 </template>
 
 <script lang="ts" setup>
+import { routeNames } from '@/router/route-names'
+
+const router = useRouter()
+
+const store = useAuthStore()
+const { register } = store
+
+const loading = ref(false)
+
 const registerFormRef = useElFormRef()
 const registerModel = useElFormModel<TAuthWithEmailAndPasswordPayload>({
   email: '',
@@ -79,12 +88,6 @@ const registerRules = useElFormRules({
   username: [useMinLenRule(5), useMaxLenRule(25), useRequiredRule()]
 })
 
-const router = useRouter()
-
-const store = useAuthStore()
-const { register } = store
-const loading = ref(false)
-
 function submit (formRef) {
   formRef.validate(async (valid) => {
     if (valid) {
@@ -93,9 +96,12 @@ function submit (formRef) {
         await register({
           ...registerModel
         })
-        router.push({ name: 'chat' })
+
+        notificationHandler('Now, check your email to confirm it', { duration: 0, type: 'success' })
+
+        router.push({ name: routeNames.login })
       } catch (err) {
-        console.log(err)
+        notificationHandler(err as TAppError)
       } finally {
         loading.value = false
       }

@@ -4,8 +4,6 @@ export const useAuthStore = defineStore('authStore', () => {
   const currentUser = ref<User | null>(null)
   const onlineUsers = ref<IOnlineUsers>({})
 
-  const isAuthenticated = computed(() => !!currentUser)
-
   const router = useRouter()
 
   let channel: RealtimeChannel | null = null
@@ -42,10 +40,6 @@ export const useAuthStore = defineStore('authStore', () => {
 
   function startListenToAuthStateChange () {
     useSupabase().auth.onAuthStateChange((event, session) => {
-      if (!session) {
-        router.replace({ name: 'login' })
-      }
-
       switch (event) {
         case 'USER_UPDATED':
           loadUser()
@@ -74,7 +68,6 @@ export const useAuthStore = defineStore('authStore', () => {
       })
 
       channel?.on('presence', { event: 'leave' }, ({ leftPresences }) => {
-        console.log('Users have left: ', leftPresences)
         onlineUsers.value = {
           ...onlineUsers.value,
           [leftPresences[0].id]: false
@@ -84,7 +77,6 @@ export const useAuthStore = defineStore('authStore', () => {
       channel.subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
           await channel?.track({
-            online_at: new Date().toISOString(),
             id: currentUser?.value?.id
           })
         }
@@ -95,7 +87,6 @@ export const useAuthStore = defineStore('authStore', () => {
   return {
     currentUser,
     onlineUsers,
-    isAuthenticated,
     logIn,
     register,
     loadUser,
