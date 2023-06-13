@@ -13,3 +13,7 @@ type TCurrentChat = TChatItem | null | undefined
 type TChatsTransformed = {
   [key: string]: TChatItem
 }
+
+type TCachedMessages = {
+  [key: string]: IMessage[]
+}

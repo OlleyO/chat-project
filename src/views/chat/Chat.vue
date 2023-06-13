@@ -67,7 +67,7 @@ const authStore = useAuthStore()
 const chatStore = useChatStore()
 
 const { currentUser } = storeToRefs(authStore)
-const { messages, lastReadMessage, chats, currentChat, chatsLoading } = storeToRefs(chatStore)
+const { messages, cachedMessages, lastReadMessage, chats, currentChat, chatsLoading } = storeToRefs(chatStore)
 const { loadMessageBatch, getChats } = chatStore
 
 const messagesLoading = ref(false)
@@ -137,7 +137,7 @@ function markAsRead (message: IDatabase['public']['Tables']['messages']['Row']) 
       read: true
     }
 
-    messages.value = messagesCopy
+    cachedMessages.value[message.chat_id] = messagesCopy
   }
 
   if (chat) {
@@ -152,13 +152,13 @@ function markAsRead (message: IDatabase['public']['Tables']['messages']['Row']) 
 }
 
 function addMessage (newMessage: IMessage, chatId: string) {
-  if (chatId === newMessage.chat_id) {
-    messages.value = [...messages.value, { ...newMessage, read: false }]
-  }
-
   const chat = chats.value[newMessage.chat_id]
 
   if (chat) {
+    if (cachedMessages.value[chat.chat_id]) {
+      cachedMessages.value[chat.chat_id] = [...cachedMessages.value[chat.chat_id] || [], { ...newMessage, read: false }]
+    }
+
     const ch = { ...chat }
     ch.message = newMessage.message
     ch.message_created_at = newMessage.created_at
@@ -176,10 +176,13 @@ function addMessage (newMessage: IMessage, chatId: string) {
 }
 
 function deleteMessage (message: IMessage) {
-  messages.value = messages.value.filter(msg => msg.id !== message.id)
+  if (cachedMessages.value[message.chat_id]) {
+    cachedMessages.value[message.chat_id] = cachedMessages.value[message.chat_id].filter(msg => msg.id !== message.id)
+  }
 
   if (chats.value[message.chat_id]) {
-    const lastMessage = messages.value[messages.value.length - 1]
+    const lastMessage =
+    cachedMessages.value[message.chat_id][cachedMessages.value[message.chat_id]?.length - 1 || 0] || message
     chats.value[message.chat_id].message = lastMessage.message
     chats.value[message.chat_id].message_created_at = lastMessage.created_at
     chats.value[message.chat_id].message_id = lastMessage.id
@@ -188,11 +191,11 @@ function deleteMessage (message: IMessage) {
 }
 
 function editMessage (message: IMessage) {
-  const msgIndex = messages.value.findIndex(msg => msg.id === message.id)
+  const msgIndex = cachedMessages.value[message.chat_id]?.findIndex(msg => msg.id === message.id) || -1
 
   if (msgIndex !== -1) {
-    messages.value[msgIndex] = {
-      ...messages.value[msgIndex],
+    cachedMessages.value[message.chat_id][msgIndex] = {
+      ...cachedMessages.value[message.chat_id][msgIndex],
       message: message.message
     }
   }
@@ -221,7 +224,7 @@ async function addChat (chat: IDatabase['public']['Tables']['chats']['Row']) {
 
 function clearConversation (chat: any) {
   if (currentChat.value?.chat_id === chat.id) {
-    messages.value = []
+    cachedMessages.value[chat.id] = []
     currentChat.value = null
 
     router.replace({ name: routeNames.chat })
@@ -231,11 +234,12 @@ function clearConversation (chat: any) {
 }
 
 async function initialLoadMessages (chatId: string) {
-  messages.value = []
-
   try {
-    messagesLoading.value = true
-    await loadMessageBatch(chatId)
+    if (!cachedMessages.value[chatId]) {
+      messagesLoading.value = true
+      cachedMessages.value[chatId] = []
+      await loadMessageBatch(chatId)
+    }
   } catch (err) {
     notificationHandler(err as TAppError)
   } finally {
@@ -287,7 +291,7 @@ watch(route, async (route) => {
   const chatId = route.params.id as string
 
   // reset messages on 'other chat' selected
-  messages.value = []
+  // messages.value = []
 
   if (chatId) {
     initialLoadMessages(chatId)
