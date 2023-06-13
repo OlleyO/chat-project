@@ -3,7 +3,7 @@
     v-loading="messagesLoading"
     class="relative flex flex-col justify-items-center items-center
     pt-2 pb-2 md:pb-0 overflow-hidden h-full
-    xl:max-w-[calc(100%-280px)]
+    xl:max-w-[calc(100%-280px)] mx-auto
     "
   >
     <div
@@ -129,53 +129,38 @@ function markAsRead (message: IDatabase['public']['Tables']['messages']['Row']) 
   const msgIndex = messages.value.findIndex(msg => msg.id === message.id)
 
   if (msgIndex !== -1) {
-    const msg = { ...messages.value[msgIndex] }
-
-    const messagesCopy = [...messages.value]
-    messagesCopy[msgIndex] = {
-      ...msg,
-      read: true
-    }
-
-    cachedMessages.value[message.chat_id] = messagesCopy
+    cachedMessages.value[message.chat_id][msgIndex].read = true
   }
 
   if (chat) {
-    const ch = { ...chat }
-    ch.unread_messages_count = ch.unread_messages_count ? ch.unread_messages_count - 1 : 0
+    const unreadMessagesCount = chat.unread_messages_count
 
-    chats.value = {
-      ...chats.value,
-      [ch.chat_id]: ch
-    }
+    chats.value[chat.chat_id].unread_messages_count = unreadMessagesCount ? unreadMessagesCount - 1 : 0
   }
 }
 
-function addMessage (newMessage: IMessage, chatId: string) {
+function addMessage (newMessage: TMessage) {
   const chat = chats.value[newMessage.chat_id]
 
   if (chat) {
     if (cachedMessages.value[chat.chat_id]) {
-      cachedMessages.value[chat.chat_id] = [...cachedMessages.value[chat.chat_id] || [], { ...newMessage, read: false }]
+      cachedMessages.value[chat.chat_id]?.push({ ...newMessage, read: false })
     }
 
     const ch = { ...chat }
-    ch.message = newMessage.message
-    ch.message_created_at = newMessage.created_at
-    ch.message_id = newMessage.id
-    ch.updated_at = newMessage.created_at
+    chats.value[ch.chat_id].message = newMessage.message
+    chats.value[ch.chat_id].message_created_at = newMessage.created_at
+    chats.value[ch.chat_id].message_id = newMessage.id
+    chats.value[ch.chat_id].updated_at = newMessage.created_at
 
-    if (currentUser.value?.id !== newMessage.users.id) {
-      ch.unread_messages_count = ch.unread_messages_count
-        ? ch.unread_messages_count + 1
-        : 1
+    if (currentUser.value?.id !== newMessage.users?.id) {
+      const unreadMessagesCount = chats.value[ch.chat_id].unread_messages_count
+      chats.value[ch.chat_id].unread_messages_count = unreadMessagesCount + 1 || 1
     }
-
-    chats.value = { ...chats.value, [ch.chat_id]: ch }
   }
 }
 
-function deleteMessage (message: IMessage) {
+function deleteMessage (message: TMessage) {
   if (cachedMessages.value[message.chat_id]) {
     cachedMessages.value[message.chat_id] = cachedMessages.value[message.chat_id].filter(msg => msg.id !== message.id)
   }
@@ -190,14 +175,11 @@ function deleteMessage (message: IMessage) {
   }
 }
 
-function editMessage (message: IMessage) {
+function editMessage (message: TMessage) {
   const msgIndex = cachedMessages.value[message.chat_id]?.findIndex(msg => msg.id === message.id) || -1
 
   if (msgIndex !== -1) {
-    cachedMessages.value[message.chat_id][msgIndex] = {
-      ...cachedMessages.value[message.chat_id][msgIndex],
-      message: message.message
-    }
+    cachedMessages.value[message.chat_id][msgIndex].message = message.message
   }
 
   if (chats.value[message.chat_id].message_id === message.id) {
@@ -247,7 +229,7 @@ async function initialLoadMessages (chatId: string) {
   }
 }
 
-async function subscribeToChatMessagesEvents (chatId: string) {
+async function subscribeToChatMessagesEvents () {
   // to track what users chat shoud be added to
   let newChat: IDatabase['public']['Tables']['chats']['Row'] | null = null
 
@@ -261,7 +243,7 @@ async function subscribeToChatMessagesEvents (chatId: string) {
       newChat = null
     }
 
-    addMessage(newMessage, chatId)
+    addMessage(newMessage)
   })
 
   chatService.onDeleteMessage((message) => {
@@ -290,13 +272,10 @@ onMounted(async () => {
 watch(route, async (route) => {
   const chatId = route.params.id as string
 
-  // reset messages on 'other chat' selected
-  // messages.value = []
-
   if (chatId) {
     initialLoadMessages(chatId)
   }
 
-  subscribeToChatMessagesEvents(chatId)
+  subscribeToChatMessagesEvents()
 }, { immediate: true })
 </script>

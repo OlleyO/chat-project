@@ -10,7 +10,7 @@ export const useChatStore = defineStore('chatStore', () => {
   const foundChats = ref<TChatsTransformed | null>(null)
   const currentChat = ref<TCurrentChat>()
   const cachedMessages = ref<TCachedMessages>({})
-  const messageToEdit = ref<IMessage | null>(null)
+  const messageToEdit = ref<TMessage | null>(null)
   const chatsLoading = ref(false)
 
   const messages = computed(() => currentChat.value ? cachedMessages.value[currentChat.value.chat_id] || [] : [])
@@ -34,7 +34,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
   async function loadMessageBatch (chatId: string) {
     const messageBatch = await chatService.getMessages(cachedMessages.value[chatId]?.length,
-      cachedMessages.value[chatId]?.length + maxMessagesPerRequest, chatId) as unknown as IMessage[]
+      cachedMessages.value[chatId]?.length + maxMessagesPerRequest, chatId)
 
     cachedMessages.value[chatId] = [...messageBatch.reverse(), ...cachedMessages.value[chatId] || []]
   }

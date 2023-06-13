@@ -70,7 +70,7 @@ class ChatService {
     return data
   }
 
-  async editMessage (message: IMessage) {
+  async editMessage (message: TMessage) {
     const { error } = await useSupabase().from('messages').update({
       message: message.message
     }).eq('id', message.id)

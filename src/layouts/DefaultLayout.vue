@@ -32,16 +32,15 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup>const { currentUser, onlineUsers } = storeToRefs(useAuthStore())
+const chatStore = useChatStore()
+const { currentChat } = storeToRefs(chatStore)
+const { deleteChat } = chatStore
+
 const leftSidebarOpen = ref(false)
 const rightDrawer = ref(false)
 const createReportFormVisible = ref(false)
 const chatToReport = ref<TCurrentChat>()
-
-const { currentUser, onlineUsers } = storeToRefs(useAuthStore())
-const chatStore = useChatStore()
-const { currentChat } = storeToRefs(chatStore)
-const { deleteChat } = chatStore
 
 async function handleDeleteChat () {
   try {

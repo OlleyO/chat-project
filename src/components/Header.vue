@@ -29,36 +29,28 @@
       />
 
       <el-dropdown trigger="click">
-        <span class="el-dropdown-link">
-          <el-button
-            class="h-full header-button px-2 text-xl leading-none"
-            :icon="Gear"
-            text
+        <div class="px-2 h-full md:flex items-center">
+          <AppAvatar
+            :size="32"
+            :src="currentUser?.user_metadata.avatar_url"
+            :fullname="currentUser?.user_metadata.fullname"
           />
-        </span>
+        </div>
 
         <template #dropdown>
           <el-dropdown-menu class="bg-block-primary rounded-3xl" placement="bottom-start">
             <el-dropdown-item>
-              <el-button text @click="$router.push({name: $routeNames.settings})">
+              <el-button class="rounded-none" text @click="$router.push({name: $routeNames.settings})">
                 Settings
               </el-button>
             </el-dropdown-item>
 
             <el-dropdown-item>
-              <LogOutButton />
+              <LogOutButton class="rounded-none w-full" />
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-
-      <div class="hidden px-2 h-full md:flex items-center">
-        <AppAvatar
-          :size="32"
-          :src="currentUser?.user_metadata.avatar_url"
-          :fullname="currentUser?.user_metadata.fullname"
-        />
-      </div>
     </div>
   </header>
 </template>
@@ -68,7 +60,6 @@ import type { User } from '@supabase/supabase-js'
 
 import BurgerMenu from '@/components/icons/BurgerMenu.vue'
 import Dots from '@/components/icons/Dots.vue'
-import Gear from '@/components/icons/Gear.vue'
 
 defineProps<{
   currentChat: TCurrentChat
