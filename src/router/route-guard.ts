@@ -11,16 +11,17 @@ export const routeGuard = async (
   const { currentUser } = storeToRefs(authStore)
   const { loadUser } = authStore
 
+  const routeProtected = to.meta.requireAuth || to.meta.requireAdmin
+
   try {
-    if (to.meta.requireAuth || to.meta.requireAdmin) {
+    if (routeProtected) {
       await loadUser()
 
-      if (to.meta.requireAdmin && currentUser.value?.user_metadata.is_admin) {
+      const allowedAsAdmin = to.meta.requireAdmin && currentUser.value?.user_metadata.is_admin
+      const allowedAsUser = currentUser.value && !to.meta.requireAdmin
+
+      if (allowedAsAdmin || allowedAsUser) {
         return next()
-      } else {
-        if (currentUser.value && !to.meta.requireAdmin) {
-          return next()
-        }
       }
 
       return to.meta.requireAdmin ? next({ name: routeNames.notFound }) : next({ name: routeNames.login })
@@ -28,8 +29,6 @@ export const routeGuard = async (
       return next()
     }
   } catch (err) {
-    notificationHandler('Session expired')
-
     return next({ name: routeNames.login })
   }
 }

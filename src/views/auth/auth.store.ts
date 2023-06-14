@@ -1,3 +1,4 @@
+import { routeNames } from '@/router/route-names'
 import { RealtimeChannel, type User } from '@supabase/supabase-js'
 
 export const useAuthStore = defineStore('authStore', () => {
@@ -40,6 +41,11 @@ export const useAuthStore = defineStore('authStore', () => {
 
   function startListenToAuthStateChange () {
     useSupabase().auth.onAuthStateChange((event, session) => {
+      if (!session && currentUser.value && event !== 'SIGNED_OUT') {
+        notificationHandler('Session expired')
+        return router.replace({ name: routeNames.login })
+      }
+
       switch (event) {
         case 'USER_UPDATED':
           loadUser()
