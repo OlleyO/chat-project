@@ -17,8 +17,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Chat Project AIChat',
-        short_name: 'AIChat',
+        name: 'E-message',
+        short_name: 'E-message',
         description: 'App Chat',
         theme_color: '#ffffff',
         background_color: '#ffffff',
