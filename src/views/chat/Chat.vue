@@ -22,8 +22,13 @@
         :lastRead="message.id === lastReadMessage?.id"
       />
       <NoContent
-        v-if="showNoMessages"
+        v-if="showNoMessages && $route.params.id"
         class="self-center my-auto" message="Start Conversation"
+      />
+      <NoContent
+        v-if="!$route.params.id"
+        class="self-center my-auto"
+        message="Create a chat"
       />
     </div>
 
