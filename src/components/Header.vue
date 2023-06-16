@@ -10,6 +10,7 @@
 
       <div class="flex items-center gap-2">
         <AppAvatar
+          v-if="currentChat"
           :src="currentChat?.avatar_url"
           :fullname="currentChat?.fullname"
           :size="32"
