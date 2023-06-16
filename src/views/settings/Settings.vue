@@ -122,12 +122,17 @@ const changesApplied = computed(() => {
   if (currentUser.value) {
     return Object.keys(profileModel).some(
       (key) => {
+        console.log(key)
+        console.log(profileModel[key] !== currentUser.value?.user_metadata[key])
+
         if (currentUser.value?.user_metadata[key] === undefined) {
           return false
         }
 
         return profileModel[key] !== currentUser.value?.user_metadata[key]
-      }) || currentUser.value.email !== profileModel.email
+      }) ||
+       currentUser.value.email !== profileModel.email ||
+       !!profileModel.avatar_file
   }
 })
 
@@ -168,6 +173,9 @@ function submit (formRef) {
           ...profileModel,
           avatar_url: avatarUrl || profileModel.avatar_url
         })
+
+        profileModel.avatar_file = null
+        profileModel.avatar_url = avatarUrl || profileModel.avatar_url
 
         notificationHandler('Profile updated', {
           type: 'success'

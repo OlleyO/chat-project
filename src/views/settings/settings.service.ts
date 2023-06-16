@@ -15,7 +15,7 @@ class SettingsService {
     return data
   }
 
-  async updateProfile ({ email, ...rest }: IProfile) {
+  async updateProfile ({ email, avatar_file: avatarFile, ...rest }: IProfile) {
     const { data, error } = await useSupabase().auth.updateUser({
       email,
       data: rest
