@@ -72,11 +72,18 @@
         class="justify-start"
         :type="$elComponentType.danger"
         text
-        @click="$emit('deleteChat')"
+        @click="deleteChatModalVisible = true"
       >
         Delete conversation
       </el-button>
     </div>
+    <ConfirmationModal
+      v-model="deleteChatModalVisible"
+      :appendToBody="true"
+      title="Delete Conversation"
+      helperText="Chat messages will be lost?"
+      @confirm="handleDeleteChat"
+    />
   </el-drawer>
 </template>
 
@@ -90,7 +97,12 @@ defineProps<{
 
 const emit = defineEmits(['update:modelValue', 'deleteChat', 'openCreateReportForm'])
 
+const deleteChatModalVisible = ref(false)
 const drawer = ref(null)
+
+function handleDeleteChat () {
+  emit('deleteChat')
+}
 
 onClickOutside(drawer, () => {
   emit('update:modelValue', false)

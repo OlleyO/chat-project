@@ -87,17 +87,25 @@
         </div>
       </el-form>
     </div>
-    <DeleteAccountModal v-model="deleteAccountModalVisible" />
+    <ConfirmationModal
+      v-model="deleteAccountModalVisible"
+      title="Delete Account"
+      helperText="Are you sure you want to delete your account?"
+      @confirm="deleteAccount"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { settingsService } from './settings.service'
 
-import DeleteAccountModal from './components/DeleteAccountModal.vue'
+import { routeNames } from '@/router/route-names'
+
+const router = useRouter()
 
 const authStore = useAuthStore()
 const { currentUser } = storeToRefs(authStore)
+const { clearUser } = authStore
 
 const loading = ref(false)
 const deleteAccountModalVisible = ref(false)
@@ -132,6 +140,23 @@ const changesApplied = computed(() => {
        !!profileModel.avatar_file
   }
 })
+
+async function deleteAccount () {
+  if (currentUser.value) {
+    try {
+      await settingsService.deleteAccount(currentUser.value?.id)
+      clearUser()
+
+      notificationHandler('Account deleted', {
+        type: 'success'
+      })
+
+      router.replace({ name: routeNames.signUp })
+    } catch (err) {
+      notificationHandler(err as TAppError)
+    }
+  }
+}
 
 async function onFileChange (e: Event) {
   const target = e.target as HTMLInputElement

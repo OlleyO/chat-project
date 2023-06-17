@@ -15,6 +15,7 @@ declare module '@vue/runtime-core' {
     BottomArrow: typeof import('./../src/components/icons/BottomArrow.vue')['default']
     BurgerMenu: typeof import('./../src/components/icons/BurgerMenu.vue')['default']
     CloseCross: typeof import('./../src/components/icons/CloseCross.vue')['default']
+    ConfirmationModal: typeof import('./../src/components/ConfirmationModal.vue')['default']
     ContactItem: typeof import('./../src/components/ContactItem.vue')['default']
     Delete: typeof import('./../src/components/icons/Delete.vue')['default']
     DeleteAccountModal: typeof import('./../src/views/settings/components/DeleteAccountModal.vue')['default']
